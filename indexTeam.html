@@ -3,22 +3,25 @@
 <head>              
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Times - Estatísticas</title>
+  <title>Times</title>
 
   <style> 
+    /* Reset básico */
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
       font-family: Arial, sans-serif;
     }
-
+    /* Fundo e cor do texto */
     body { 
-      background: url("https://tse1.mm.bing.net/th/id/OIP.0HEFXc1CpZxTRAlAA94l4wHaEY?pid=Api&P=0&h=180") no-repeat center center fixed;
+      background: url(fundo.png) no-repeat center center fixed;
       background-size: cover;
       color: white;
     }
 
+
+    
     /* Menu */
     ul.menu {
       border-radius: 10px;
@@ -31,9 +34,10 @@
       top: 0;
       z-index: 1000;
     }
-
+    /* Itens do menu */
     ul.menu li { float: left; }
 
+    /* Links do menu */
     ul.menu li a {
       display: block;
       color: white;
@@ -41,10 +45,11 @@
       padding: 14px 20px;
       text-decoration: none;
     }
-
+    /* Efeito hover e ativo */
     ul.menu li a:hover { background-color: #111; }
     ul.menu li a.active { background-color:#04AA6D; }
-
+ 
+    /* Container principal */
     .container {
       max-width: 900px;
       margin: 50px auto;
@@ -53,19 +58,37 @@
       border-radius: 10px;
       text-align: center;
     }
-
+   /* Botão */
     .button {
       margin-top: 20px;
-      padding: 10px 20px;
+      padding: 100px 2000px;
       background-color: #04AA6D;
       cursor: pointer;
-      color: white;
+      color: rgb(255, 0, 0);
       border: none;
       border-radius: 6px;
     }
+    /* Formulário */
+    form { margin-top: 20px; }
+    form label { 
+      display: block; 
+      text-align: left; 
+      margin-top: 10px; }
+      
+    input { 
+      padding: 10px; 
+      margin-top: 10px; 
+      width: 100%; }
 
-    input { padding: 10px; margin-top: 10px; width: 100%; }
+    input[type="submit"] {
+      background-color: #04AA6D;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 6px;
+    }
 
+    /* Seções */
     section { display: none; }
     section.active { display: block; }
 
@@ -77,6 +100,7 @@
       padding: 20px 0;
     }
 
+    /* Estilização dos cards */
     .team-card {
       background: rgba(255,255,255,0.7);
       border-radius: 15px;
@@ -86,11 +110,13 @@
       transition: transform 0.3s, box-shadow 0.3s;
     }
 
+    /* Efeito hover nos cards */
     .team-card:hover {
       transform: translateY(-5px);
       box-shadow: 0 6px 12px rgba(0,0,0,0.2);
     }
 
+    /* Logo do time */
     .team-logo {
       width: 100px;
       height: 100px;
@@ -98,6 +124,7 @@
       margin-bottom: 10px;
     }
 
+    /* Ações dos times */
     .team-actions {
       display: flex;
       justify-content: center;
@@ -105,6 +132,7 @@
       margin-top: 10px;
     }
 
+/* Estilização dos botões */
     .btn {
       flex: 1;
       padding: 8px 12px;
@@ -115,10 +143,12 @@
       color: #fff;
     }
 
+    /* Botões coloridos */
     .btn.update { background: #3498db; }
     .btn.update:hover { background: #2980b9; }
     .btn.delete { background: #e74c3c; }
     .btn.delete:hover { background: #c0392b; }
+    
   </style>
 </head>
 
