@@ -32,9 +32,7 @@
       z-index: 1000;
     }
 
-    ul.menu li {
-      float: left;
-    }
+    ul.menu li { float: left; }
 
     ul.menu li a {
       display: block;
@@ -44,13 +42,8 @@
       text-decoration: none;
     }
 
-    ul.menu li a:hover {
-      background-color: #111;
-    }
-
-    ul.menu li a.active {
-      background-color:#04AA6D;
-    }
+    ul.menu li a:hover { background-color: #111; }
+    ul.menu li a.active { background-color:#04AA6D; }
 
     .container {
       max-width: 900px;
@@ -65,30 +58,75 @@
       margin-top: 20px;
       padding: 10px 20px;
       background-color: #04AA6D;
+      cursor: pointer;
+      color: white;
+      border: none;
+      border-radius: 6px;
     }
 
-    input {
-      padding: 10px;
+    input { padding: 10px; margin-top: 10px; width: 100%; }
+
+    section { display: none; }
+    section.active { display: block; }
+
+    /* Cards de times */
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      padding: 20px 0;
+    }
+
+    .team-card {
+      background: rgba(255,255,255,0.7);
+      border-radius: 15px;
+      text-align: center;
+      padding: 15px;
+      color: black;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .team-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+    }
+
+    .team-logo {
+      width: 100px;
+      height: 100px;
+      object-fit: contain;
+      margin-bottom: 10px;
+    }
+
+    .team-actions {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
       margin-top: 10px;
-      width: 100%;
     }
 
-    section {
-      display: none;
+    .btn {
+      flex: 1;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      color: #fff;
     }
-    section.active {
-      display: block;
-    }
+
+    .btn.update { background: #3498db; }
+    .btn.update:hover { background: #2980b9; }
+    .btn.delete { background: #e74c3c; }
+    .btn.delete:hover { background: #c0392b; }
   </style>
 </head>
 
 <body> 
-  <!-- Menu -->
   <ul class="menu">
     <li><a href="#" data-section="home" class="active">Home</a></li>
     <li><a href="#" data-section="times">Times</a></li>
     <li><a href="#" data-section="cadastrar">Cadastrar time</a></li>
-    <li><a href="#" data-section="editar">Atualizar time</a></li>
     <li style="float:right"><a href="#" data-section="sobre">Sobre nós</a></li>
   </ul>
 
@@ -105,6 +143,7 @@
     <!-- Times -->
     <section id="times">
       <h1>📋 Times</h1>
+      <div id="team-cards" class="team-grid"></div>
       <div id="time-info"></div>
       <canvas id="chartTeamBalance"></canvas>
     </section>
@@ -115,27 +154,18 @@
       <form id="form-cadastrar">
         <label>Nome do time:</label>
         <input type="text" id="timeName" required><br><br>
-
         <label>Ano de fundação:</label>
         <input type="number" id="timeFoundation" required><br><br>
-
         <label>Apelido:</label>
         <input type="text" id="timeNickname" required><br><br>
-
         <label>Maior ídolo:</label>
         <input type="text" id="timeBestPlayer"><br><br>
-
         <label>Cor:</label>
         <input type="text" id="timeColor"><br><br>
-
+        <label>URL do escudo:</label>
+        <input type="text" id="timeBadge" placeholder="https://..." required><br><br>
         <input type="submit" value="Cadastrar">
       </form>
-    </section>
-
-    <!-- Editar -->
-    <section id="editar">
-      <h1>Atualizar Time</h1>
-      <p>(futuramente formulário de edição...)</p>
     </section>
 
     <!-- Sobre -->
@@ -147,10 +177,8 @@
 
   </div>
 
-<!-- Importações -->
 <script src="libTeams.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="uiTeams.js"></script>
 </body>
 </html>
-
