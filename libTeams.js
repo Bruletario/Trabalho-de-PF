@@ -114,6 +114,7 @@ const addTimes = (times, newTime) => {
       `${time.id} - "${time.name}" (${time.foundation})`
     ).join('\n')
 
+// Cria uma nova lista filtrada por parâmetros escolhidos pelo usuário. Recebe a lista de times a classe do parâmetro e o parâmetro.     
   const listTimesByField = (times, field, value) => 
     times.filter(time => String(time[field]) === String(value))
 
@@ -146,6 +147,7 @@ const getMostByField = (times, field) => {
     //Estatísticas
     getMostByField
      }
+
 
 
 }) ()
