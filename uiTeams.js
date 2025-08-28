@@ -136,8 +136,8 @@ document.addEventListener("DOMContentLoaded", () => {
       <h3>${team.name}</h3>
       <p>${team.nickname}</p>
       <div class="team-actions">
-      <button class="btn update">Atualizar</button>
-      <button class="btn delete">Deletar</button>
+      <button class="btn update">🔄 Atualizar</button>
+      <button class="btn delete">🗑️ Deletar</button>
       </div>
         `;
       // Atualizar botão
@@ -218,6 +218,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+
+
+
+  
   // ===============================
   // Inicialização
   // ===============================
