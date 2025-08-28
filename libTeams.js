@@ -6,7 +6,9 @@ const STORAGE_KEY = "liga::times"
 // Persistência
 //==============================
 
-// Vai no local storage, verifica se data existe. Se existir: pega os dados que estão em string e converte em objeto. Se não: devolve []
+// Vai no local storage, verifica se data existe. Se existir: pega os dados que estão em string e converte em objeto. 
+//Se não existir: devolve []
+
 const loadTimes = () => {
     const data = localStorage.getItem(STORAGE_KEY)
     return data ? JSON.parse(data) : []
@@ -84,7 +86,8 @@ const resetTimes = () => {
 // ===================================
 
 const addTimes = (times, newTime) => {
-    // Calcula o novo ID: Usando lenght para verificar se há times na lista e reduce para percorrer a lista e encontrar o maior id.
+    // Calcula o novo ID: Usando lenght para verificar se há times na lista e reduce para percorrer a lista
+    //e encontrar o maior id.
     
     const newId = times.length > 0
         ? times.reduce((max, time) => (time.id > max ? time.id : max), 0) + 1
@@ -152,4 +155,5 @@ const getMostByField = (times, field) => {
 
 
 }) ()
+
 
