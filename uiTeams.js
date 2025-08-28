@@ -1,9 +1,9 @@
 // ===============================
-// ui.js
+// uiTeams.js
 // ===============================
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Seções
+  // Seções e Menu
   const sections = document.querySelectorAll("section");
   const menuLinks = document.querySelectorAll(".menu li a");
 
@@ -13,13 +13,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const ctxGoals = document.getElementById("chartGoals").getContext("2d");
 
   // Seletores da aba Times
-  const timeInfo = document.getElementById("time-info");
+  const teamInfo = document.getElementById("time-info");
+  const teamCardsContainer = document.getElementById("team-cards");
   const ctxTeamBalance = document.getElementById("chartTeamBalance").getContext("2d");
 
   // Seletores do formulário
   const formCadastrar = document.getElementById("form-cadastrar");
 
-  // Estado dos gráficos (para evitar duplicar)
+  // Estado dos gráficos
   let chartVictories, chartDefeats, chartGoals, chartTeamBalance;
 
   // ===============================
@@ -47,7 +48,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const renderHomeCharts = () => {
     const times = loadData();
     const labels = times.map(t => t.name);
-
     clearCharts();
 
     chartVictories = new Chart(ctxVictories, {
@@ -111,7 +111,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    timeInfo.innerHTML = `
+    teamInfo.innerHTML = `
       <h2>${team.name}</h2>
       <p><b>Fundação:</b> ${team.foundation}</p>
       <p><b>Apelido:</b> ${team.nickname}</p>
@@ -121,27 +121,52 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   // ===============================
-  // Lista de times na aba "Times"
+  // Renderização dos cards de times
   // ===============================
-  const renderTimesList = () => {
+  const renderTeamCards = () => {
     const times = loadData();
-    const listDiv = document.createElement("div");
+    teamCardsContainer.innerHTML = "";
 
-    times.forEach(t => {
-      const btn = document.createElement("button");
-      btn.textContent = t.name;
-      btn.classList.add("button");
-      btn.style.margin = "5px";
-      btn.addEventListener("click", () => renderTeamChart(t.id));
-      listDiv.appendChild(btn);
+    times.forEach(team => {
+      const card = document.createElement("div");
+      card.classList.add("team-card");
+
+      card.innerHTML = `
+      <img src="${team.badge || 'https://via.placeholder.com/100'}" alt="${team.name}" class="team-logo">
+      <h3>${team.name}</h3>
+      <p>${team.nickname}</p>
+      <div class="team-actions">
+      <button class="btn update">Atualizar</button>
+      <button class="btn delete">Deletar</button>
+      </div>
+        `;
+      // Atualizar botão
+      card.querySelector(".update").addEventListener("click", () => {
+        const newName = prompt("Novo nome do time:", team.name);
+        if (!newName) return;
+        const updatedTeam = { ...team, name: newName };
+        const updatedTimes = soccer.updateTimes(times, team.id, updatedTeam);
+        soccer.saveTimes(updatedTimes);
+        renderTeamCards();
+        renderHomeCharts();
+      });
+
+      // Deletar botão
+      card.querySelector(".delete").addEventListener("click", () => {
+        if (!confirm(`Deseja deletar o time ${team.name}?`)) return;
+        const updatedTimes = soccer.deleteTime(times, team.id);
+        soccer.saveTimes(updatedTimes);
+        renderTeamCards();
+        renderHomeCharts();
+        teamInfo.innerHTML = "<p>Selecione um time para ver estatísticas</p>";
+        if (chartTeamBalance) chartTeamBalance.destroy();
+      });
+
+      // Clicar no card exibe estatísticas
+      card.addEventListener("click", () => renderTeamChart(team.id));
+
+      teamCardsContainer.appendChild(card);
     });
-
-    // Substitui a lista anterior
-    const oldList = document.getElementById("times-list");
-    if (oldList) oldList.remove();
-
-    listDiv.id = "times-list";
-    timeInfo.insertAdjacentElement("beforebegin", listDiv);
   };
 
   // ===============================
@@ -158,24 +183,17 @@ document.addEventListener("DOMContentLoaded", () => {
       nickname: document.getElementById("timeNickname").value,
       bestPlayer: document.getElementById("timeBestPlayer").value,
       color: document.getElementById("timeColor").value,
-      badge: null,
-      dataTime: {
-        games: 0,
-        victories: 0,
-        defeats: 0,
-        goalsScored: 0,
-        goalsConceded: 0
-      }
+      badge: document.getElementById("timeBadge").value || null,
+      dataTime: { games:0, victories:0, defeats:0, goalsScored:0, goalsConceded:0 }
     };
 
     const updated = soccer.addTimes(times, newTime);
     soccer.saveTimes(updated);
 
     alert("✅ Time cadastrado com sucesso!");
-
     formCadastrar.reset();
+    renderTeamCards();
     renderHomeCharts();
-    renderTimesList();
   });
 
   // ===============================
@@ -185,19 +203,16 @@ document.addEventListener("DOMContentLoaded", () => {
     link.addEventListener("click", () => {
       const sectionId = link.getAttribute("data-section");
 
-      // alterna active no menu
       menuLinks.forEach(l => l.classList.remove("active"));
       link.classList.add("active");
 
-      // alterna active nas sections
       sections.forEach(sec => sec.classList.remove("active"));
       document.getElementById(sectionId).classList.add("active");
 
-      // renderizações específicas
       if (sectionId === "home") renderHomeCharts();
       if (sectionId === "times") {
-        renderTimesList();
-        timeInfo.innerHTML = "<p>Selecione um time para ver estatísticas</p>";
+        renderTeamCards();
+        teamInfo.innerHTML = "<p>Selecione um time para ver estatísticas</p>";
         if (chartTeamBalance) chartTeamBalance.destroy();
       }
     });
@@ -207,4 +222,5 @@ document.addEventListener("DOMContentLoaded", () => {
   // Inicialização
   // ===============================
   renderHomeCharts();
+  renderTeamCards();
 });
