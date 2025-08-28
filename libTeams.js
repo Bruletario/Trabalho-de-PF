@@ -1,153 +1,230 @@
-const soccer = (() => {
+// ===============================
+// uiTeams.js
+// ===============================
 
-const STORAGE_KEY = "liga::times"
+document.addEventListener("DOMContentLoaded", () => {
+  // Seções e Menu
+  const sections = document.querySelectorAll("section");
+  const menuLinks = document.querySelectorAll(".menu li a");
 
-// =============================
-// Persistência
-//==============================
+  // Seletores da Home
+  const ctxVictories = document.getElementById("chartVictories").getContext("2d");
+  const ctxDefeats = document.getElementById("chartDefeats").getContext("2d");
+  const ctxGoals = document.getElementById("chartGoals").getContext("2d");
 
-// vai no local storage, verifica se data existe, existe? pega os dados que estão em string e converte em objeto. não? devolve []
-const loadTimes = () => {
-    const data = localStorage.getItem(STORAGE_KEY)
-    return data ? JSON.parse(data) : []
-  }
+  // Seletores da aba Times
+  const teamInfo = document.getElementById("time-info");
+  const teamCardsContainer = document.getElementById("team-cards");
+  const ctxTeamBalance = document.getElementById("chartTeamBalance").getContext("2d");
 
-// recebe times, vai no local storage e coloca a informação em formato de string
-const saveTimes = times =>
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(times)) 
+  // Seletores do formulário
+  const formCadastrar = document.getElementById("form-cadastrar");
 
-// vai no local storage e apaga a storage key
-const clearTimes = () => {
-    localStorage.removeItem(STORAGE_KEY)
-    console.log("Limpeza concluída.")
-  }
+  // Estado dos gráficos
+  let chartVictories, chartDefeats, chartGoals, chartTeamBalance;
 
-// salva times iniciais no localStorage
-const resetTimes = () => {
-  const times = [
-    {
-      id: 1,
-      name: "Corinthians",
-      foundation: 1910,
-      color: "preto e branco",
-      nickname: "Timão",
-      bestPlayer: "Sócrates",
-      badge: null,
-      dataTime: {
-        games: 5850,
-        victories: 2830,
-        defeats: 1780,
-        goalsScored: 9700,
-        goalsConceded: 7800
+  // ===============================
+  // Helpers
+  // ===============================
+  const loadData = () => {
+    let times = soccer.loadTimes();
+    if (times.length === 0) {
+      soccer.resetTimes();
+      times = soccer.loadTimes();
+    }
+    return times;
+  };
+
+  const clearCharts = () => {
+    if (chartVictories) chartVictories.destroy();
+    if (chartDefeats) chartDefeats.destroy();
+    if (chartGoals) chartGoals.destroy();
+    if (chartTeamBalance) chartTeamBalance.destroy();
+  };
+
+  // ===============================
+  // Renderização da Home
+  // ===============================
+  const renderHomeCharts = () => {
+    const times = loadData();
+    const labels = times.map(t => t.name);
+    clearCharts();
+
+    chartVictories = new Chart(ctxVictories, {
+      type: "bar",
+      data: {
+        labels,
+        datasets: [{
+          label: "Vitórias",
+          data: times.map(t => t.dataTime.victories),
+          backgroundColor: "rgba(75, 192, 192, 0.6)"
+        }]
       }
-    },
-    {
-      id: 2,
-      name: "Flamengo",
-      foundation: 1895,
-      color: "vermelho e preto",
-      nickname: "Mengão",
-      bestPlayer: "Zico",
-      badge: null,
-      dataTime: {
-        games: 6000,
-        victories: 3100,
-        defeats: 1600,
-        goalsScored: 10500,
-        goalsConceded: 7600
+    });
+
+    chartDefeats = new Chart(ctxDefeats, {
+      type: "bar",
+      data: {
+        labels,
+        datasets: [{
+          label: "Derrotas",
+          data: times.map(t => t.dataTime.defeats),
+          backgroundColor: "rgba(255, 99, 132, 0.6)"
+        }]
       }
-    },
-    {
-      id: 3,
-      name: "Santos",
-      foundation: 1912,
-      color: "branco e preto",
-      nickname: "Peixe",
-      bestPlayer: "Pelé",
-      badge: null,
-      dataTime: {
-        games: 5900,
-        victories: 3000,
-        defeats: 1650,
-        goalsScored: 12300,
-        goalsConceded: 7900
+    });
+
+    chartGoals = new Chart(ctxGoals, {
+      type: "bar",
+      data: {
+        labels,
+        datasets: [{
+          label: "Gols Marcados",
+          data: times.map(t => t.dataTime.goalsScored),
+          backgroundColor: "rgba(54, 162, 235, 0.6)"
+        }]
       }
-    },
-  ];
+    });
+  };
 
-  saveTimes(times);
-  console.log("Times iniciais salvos.");
-};
+  // ===============================
+  // Renderização de um time específico
+  // ===============================
+  const renderTeamChart = (teamId) => {
+    const times = loadData();
+    const team = times.find(t => t.id === teamId);
+    if (!team) return;
 
-// ===================================
-// Crud funcional
-// ===================================
+    const saldo = team.dataTime.goalsScored - team.dataTime.goalsConceded;
 
-const addTimes = (times, newTime) => {
-    // Calcula o novo ID
-    const newId = times.length > 0
-        ? times.reduce((max, time) => (time.id > max ? time.id : max), 0) + 1
-        : 1;
+    if (chartTeamBalance) chartTeamBalance.destroy();
 
-    // Cria um novo objeto `newTime` com o ID
-    const timeWithId = { ...newTime, id: newId };
-    
-    // Retorna um novo array com o novo time adicionado
-    return [...times, timeWithId];
-};
+    chartTeamBalance = new Chart(ctxTeamBalance, {
+      type: "doughnut",
+      data: {
+        labels: ["Saldo de Gols"],
+        datasets: [{
+          label: team.name,
+          data: [saldo],
+          backgroundColor: saldo >= 0 ? "rgba(75, 192, 192, 0.6)" : "rgba(255, 99, 132, 0.6)"
+        }]
+      }
+    });
 
- // recebe times, id, e a atualização, e altera a informação.
- const updateTimes = (times, id, updates) =>
-    times.map(time => (time.id === id ? { ...time, ...updates } : time))
+    teamInfo.innerHTML = `
+      <h2>${team.name}</h2>
+      <p><b>Fundação:</b> ${team.foundation}</p>
+      <p><b>Apelido:</b> ${team.nickname}</p>
+      <p><b>Maior ídolo:</b> ${team.bestPlayer}</p>
+      <p><b>Saldo de gols:</b> ${saldo}</p>
+    `;
+  };
 
- // verifica o id do time, se ele existir pega a lista times e filtra sem o id passado
- const deleteTime = (times, id) =>
-    times.filter(time => time.id !== id)
+  // ===============================
+  // Renderização dos cards de times
+  // ===============================
+  const renderTeamCards = () => {
+    const times = loadData();
+    teamCardsContainer.innerHTML = "";
 
-// ========================
-// Listagem e formatação
-// ========================
+    times.forEach(team => {
+      const card = document.createElement("div");
+      card.classList.add("team-card");
 
-// lista os times
- const listTimes = times =>
-    times.map(time =>
-      `${time.id} - "${time.name}" (${time.foundation})`
-    ).join('\n')
+      card.innerHTML = `
+      <img src="${team.badge || 'https://via.placeholder.com/100'}" alt="${team.name}" class="team-logo">
+      <h3>${team.name}</h3>
+      <p>${team.nickname}</p>
+      <div class="team-actions">
+      <button class="btn update">🔄 Atualizar</button>
+      <button class="btn delete">🗑️ Deletar</button>
+      </div>
+        `;
+      // Atualizar botão
+      card.querySelector(".update").addEventListener("click", () => {
+        const newName = prompt("Novo nome do time:", team.name);
+        if (!newName) return;
+        const updatedTeam = { ...team, name: newName };
+        const updatedTimes = soccer.updateTimes(times, team.id, updatedTeam);
+        soccer.saveTimes(updatedTimes);
+        renderTeamCards();
+        renderHomeCharts();
+      });
 
-// Cria uma nova lista filtrada por parâmetros escolhidos pelo usuário. Recebe a lista de times a classe do parâmetro e o parâmetro.     
-  const listTimesByField = (times, field, value) => 
-    times.filter(time => String(time[field]) === String(value))
+      // Deletar botão
+      card.querySelector(".delete").addEventListener("click", () => {
+        if (!confirm(`Deseja deletar o time ${team.name}?`)) return;
+        const updatedTimes = soccer.deleteTime(times, team.id);
+        soccer.saveTimes(updatedTimes);
+        renderTeamCards();
+        renderHomeCharts();
+        teamInfo.innerHTML = "<p>Selecione um time para ver estatísticas</p>";
+        if (chartTeamBalance) chartTeamBalance.destroy();
+      });
 
-// ========================
-// Estatísticas Gerais
-// ========================
+      // Clicar no card exibe estatísticas
+      card.addEventListener("click", () => renderTeamChart(team.id));
 
-//recebe a lista de times e um campo (vitória,derrota,etc) e verifica se o número do campo é maior que o acumulador ou zero, se for retorna o time se não retorna o acumulador
-const getMostByField = (times, field) => {
-  return times.reduce((acc, team) => team.dataTime[field] > (acc?.dataTime[field] || 0) ? team : acc,null)} 
+      teamCardsContainer.appendChild(card);
+    });
+  };
+
+  // ===============================
+  // Cadastro de Time
+  // ===============================
+  formCadastrar.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const times = loadData();
+
+    const newTime = {
+      name: document.getElementById("timeName").value,
+      foundation: parseInt(document.getElementById("timeFoundation").value),
+      nickname: document.getElementById("timeNickname").value,
+      bestPlayer: document.getElementById("timeBestPlayer").value,
+      color: document.getElementById("timeColor").value,
+      badge: document.getElementById("timeBadge").value || null,
+      dataTime: { games:0, victories:0, defeats:0, goalsScored:0, goalsConceded:0 }
+    };
+
+    const updated = soccer.addTimes(times, newTime);
+    soccer.saveTimes(updated);
+
+    alert("✅ Time cadastrado com sucesso!");
+    formCadastrar.reset();
+    renderTeamCards();
+    renderHomeCharts();
+  });
+
+  // ===============================
+  // Navegação do Menu
+  // ===============================
+  menuLinks.forEach(link => {
+    link.addEventListener("click", () => {
+      const sectionId = link.getAttribute("data-section");
+
+      menuLinks.forEach(l => l.classList.remove("active"));
+      link.classList.add("active");
+
+      sections.forEach(sec => sec.classList.remove("active"));
+      document.getElementById(sectionId).classList.add("active");
+
+      if (sectionId === "home") renderHomeCharts();
+      if (sectionId === "times") {
+        renderTeamCards();
+        teamInfo.innerHTML = "<p>Selecione um time para ver estatísticas</p>";
+        if (chartTeamBalance) chartTeamBalance.destroy();
+      }
+    });
+  });
+
+
 
 
   
-     return {
-    // Persistência
-    loadTimes,
-    saveTimes,
-    resetTimes,
-    clearTimes,
-
-    // CRUD
-    addTimes,
-    updateTimes,
-    deleteTime, 
-
-    // Exibição
-    listTimes,
-    listTimesByField,
-
-    //Estatísticas
-    getMostByField
-     }
-
-
-
-}) ()
+  // ===============================
+  // Inicialização
+  // ===============================
+  renderHomeCharts();
+  renderTeamCards();
+});
