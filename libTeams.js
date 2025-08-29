@@ -6,25 +6,23 @@ const STORAGE_KEY = "liga::times"
 // Persistência
 //==============================
 
-// Vai no local storage, verifica se data existe. Se existir: pega os dados que estão em string e converte em objeto. 
-//Se não existir: devolve []
-
+// vai no local storage, verifica se data existe, existe? pega os dados que estão em string e converte em objeto. não? devolve []
 const loadTimes = () => {
     const data = localStorage.getItem(STORAGE_KEY)
     return data ? JSON.parse(data) : []
   }
 
-// Recebe times, vai no local storage e coloca a informação em formato de string
+// recebe times, vai no local storage e coloca a informação em formato de string
 const saveTimes = times =>
     localStorage.setItem(STORAGE_KEY, JSON.stringify(times)) 
 
-// Vai no local storage e apaga a storage key e confirma a limpeza com o console.log
+// vai no local storage e apaga a storage key
 const clearTimes = () => {
     localStorage.removeItem(STORAGE_KEY)
     console.log("Limpeza concluída.")
   }
 
-// Salva times iniciais no localStorage
+// salva times iniciais no localStorage
 const resetTimes = () => {
   const times = [
     {
@@ -86,9 +84,7 @@ const resetTimes = () => {
 // ===================================
 
 const addTimes = (times, newTime) => {
-    // Calcula o novo ID: Usando lenght para verificar se há times na lista e reduce para percorrer a lista
-    //e encontrar o maior id.
-    
+    // Calcula o novo ID
     const newId = times.length > 0
         ? times.reduce((max, time) => (time.id > max ? time.id : max), 0) + 1
         : 1;
@@ -100,11 +96,11 @@ const addTimes = (times, newTime) => {
     return [...times, timeWithId];
 };
 
- // Recebe times, id, e a atualização, e altera a informação.
+ // recebe times, id, e a atualização, e altera a informação.
  const updateTimes = (times, id, updates) =>
     times.map(time => (time.id === id ? { ...time, ...updates } : time))
 
- // Verifica o id do time, se ele existir pega a lista e seleciona os do id diferente do id que foi passado(exclui (!==))
+ // verifica o id do time, se ele existir pega a lista times e filtra sem o id passado
  const deleteTime = (times, id) =>
     times.filter(time => time.id !== id)
 
@@ -112,13 +108,12 @@ const addTimes = (times, newTime) => {
 // Listagem e formatação
 // ========================
 
-// Lista os times formatadamente, por meio do map. Mapeia os times e organiza a informação deles
+// lista os times
  const listTimes = times =>
     times.map(time =>
       `${time.id} - "${time.name}" (${time.foundation})`
     ).join('\n')
-//Essa funciona como filtro: os objetos dentro do time sao combinados ao field, ex: times.foundation e transformados em string
-//Essa string é comparada ao que voce quer filtrar(outra string)
+
   const listTimesByField = (times, field, value) => 
     times.filter(time => String(time[field]) === String(value))
 
@@ -126,8 +121,7 @@ const addTimes = (times, newTime) => {
 // Estatísticas Gerais
 // ========================
 
-//Recebe a lista de times e um campo (vitória, derrota, etc) e verifica se o número do campo é maior que o acumulador ou zero.
-//Se for retorna o time se não retorna o acumulador
+//recebe a lista de times e um campo (vitória,derrota,etc) e verifica se o número do campo é maior que o acumulador ou zero, se for retorna o time se não retorna o acumulador
 const getMostByField = (times, field) => {
   return times.reduce((acc, team) => team.dataTime[field] > (acc?.dataTime[field] || 0) ? team : acc,null)} 
 
@@ -155,5 +149,3 @@ const getMostByField = (times, field) => {
 
 
 }) ()
-
-
