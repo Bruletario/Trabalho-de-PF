@@ -50,17 +50,19 @@
  
     /* Container principal */
     .container {
-      max-width: 900px;
-      margin: 50px auto;
-      padding: 20px;
-      background-color: rgba(0,0,0,0.7);
-      border-radius: 10px;
+      max-width: 100%;
+      margin: 100px ;
+      padding: 20px 20px 20px 20px;
+      background-color: rgba(0, 0, 0, 0.7);
+      border-radius: 6px;
       text-align: center;
-    }
+    } 
 
     /* Formulário */
     form { 
-      margin-top: 20px; }
+
+      margin-top: 10px; }
+
     form label { 
       display: block; 
       text-align: left; 
@@ -69,7 +71,8 @@
     input { 
       padding: 10px; 
       margin-top: 10px; 
-      width: 100%; }
+      width: 100%;
+    border-radius: 6px; }
     
     input[type="submit"] {
       background-color: #04aa6d;
@@ -95,7 +98,7 @@
     /* Estilização dos cards */
     .team-card {
       background: rgba(255,255,255,0.7);
-      border-radius: 15px;
+      border-radius: 6px;
       text-align: center;
       padding: 15px;
       color: black;
@@ -105,7 +108,7 @@
     /* Efeito hover nos cards */
     .team-card:hover {
       transform: translateY(-5px);
-      box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
     }
 
     /* Logo do time */
@@ -122,6 +125,7 @@
       justify-content: center;
       gap: 10px;
       margin-top: 10px;
+      
     }
 
     /* Estilização dos botões */
@@ -129,7 +133,7 @@
       flex: 1;
       padding: 8px 12px;
       border: none;
-      border-radius: 8px;
+      border-radius: 6px;
       font-weight: bold;
       cursor: pointer;
       color: #fff;
@@ -141,9 +145,31 @@
     .btn.delete { background: #e74c3c; }
     .btn.delete:hover { background: #c0392b; }
 
-
-
     
+
+
+    /* Área dos gráficos */
+    .charts {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      margin-top:  20px;
+    }
+ /* Estilo dos gráficos */
+    .chart-container {
+     
+      padding: 20px;
+      border-radius: 6px;
+      color:black;
+    }
+
+canvas {
+      width: 100% !important;
+      height: 300px !important;
+    }
+
+
+
     
   </style>
 </head>
@@ -162,9 +188,23 @@
     <!-- Home -->
     <section id="home" class="active">
       <h1>🏆 Estatísticas da Liga</h1>
-      <canvas id="chartVictories"></canvas>
+
+
+
+      <!-- Gráfico de barras (Vitórias)-->
+       <div class="charts">
+      <div class="chart-container">
+        <canvas id="chartVictories"></canvas>
+      </div>
+
+      <div class="chart-container">
       <canvas id="chartDefeats"></canvas>
+      </div>
+
+      <div class="chart-container">
       <canvas id="chartGoals"></canvas>
+      </div>
+      </div>
     </section>
 
     <!-- Times -->
@@ -180,15 +220,15 @@
       <h1> 📝 Cadastrar time</h1>
       <form id="form-cadastrar">
         <label>Nome do time:</label>
-        <input type="text" id="timeName" required><br><br>
+        <input type="text" id="timeName" placeholder="Ex: Flamengo" required><br><br>
         <label>Ano de fundação:</label>
-        <input type="number" id="timeFoundation" required><br><br>
+        <input type="number" id="timeFoundation" placeholder="Ex: 1981" required><br><br>
         <label>Apelido:</label>
-        <input type="text" id="timeNickname" required><br><br>
+        <input type="text" id="timeNickname" placeholder="Ex: Mengão" required><br><br>
         <label>Maior ídolo:</label>
-        <input type="text" id="timeBestPlayer"><br><br>
+        <input type="text" id="timeBestPlayer" placeholder="Ex: Zico" required><br><br>
         <label>Cor:</label>
-        <input type="text" id="timeColor"><br><br>
+        <input type="text" id="timeColor" placeholder="Ex: Vermelho e preto" required><br><br>
         <label>URL do escudo:</label>
         <input type="text" id="timeBadge" placeholder="https://..." required><br><br>
         <input type="submit" value="Cadastrar">
