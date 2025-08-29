@@ -57,10 +57,43 @@ document.addEventListener("DOMContentLoaded", () => {
         datasets: [{
           label: "Vitórias",
           data: times.map(t => t.dataTime.victories),
-          backgroundColor: "rgba(75, 192, 192, 0.6)"
+          backgroundColor: "rgba(75, 192, 192, 0.95)",
+
+
         }]
+      },
+  options: {
+    plugins: {
+      legend: {
+        labels: {
+          color: "white", 
+          font: {
+            size: 20,
+            weight: "bold"
+          }
+        }
       }
-    });
+    },
+    scales: {
+      x: {
+        ticks: {
+          color: "white", 
+          font: {
+            size: 20
+          }
+        }
+      },
+      y: {
+        ticks: {
+          color: "white", 
+          font: {
+            size: 20
+          }
+        }
+      }
+    }
+  }
+});
 
     chartDefeats = new Chart(ctxDefeats, {
       type: "bar",
@@ -69,22 +102,84 @@ document.addEventListener("DOMContentLoaded", () => {
         datasets: [{
           label: "Derrotas",
           data: times.map(t => t.dataTime.defeats),
-          backgroundColor: "rgba(255, 99, 132, 0.6)"
+          backgroundColor: "rgba(255, 99, 133, 0.95)"
         }]
+      },
+  options: {
+    plugins: {
+      legend: {
+        labels: {
+          color: "white",
+          font: {
+            size: 20,
+            weight: "bold"
+          }
+        }
       }
-    });
+    },
+    scales: {
+      x: {
+        ticks: {
+          color: "white", 
+          font: {
+            size: 20
+          }
+        }
+      },
+      y: {
+        ticks: {
+          color: "white", 
+          font: {
+            size: 20
+          }
+        }
+      }
+    }
+  }
+});
 
-    chartGoals = new Chart(ctxGoals, {
-      type: "bar",
-      data: {
-        labels,
-        datasets: [{
-          label: "Gols Marcados",
-          data: times.map(t => t.dataTime.goalsScored),
-          backgroundColor: "rgba(54, 162, 235, 0.6)"
-        }]
+   chartGoals = new Chart(ctxGoals, {
+  type: "bar",
+  data: {
+    labels,
+    datasets: [{
+      label: "Gols Marcados",
+      data: times.map(t => t.dataTime.goalsScored),
+      backgroundColor: "rgba(28, 113, 170, 0.95)"
+    }]
+  },
+  options: {
+    plugins: {
+      legend: {
+        labels: {
+          color: "white", // Cor da legenda
+          font: {
+            size: 20,
+            weight: "bold"
+          }
+        }
       }
-    });
+    },
+    scales: {
+      x: {
+        ticks: {
+          color: "white", // Cor dos nomes dos times
+          font: {
+            size: 20
+          }
+        }
+      },
+      y: {
+        ticks: {
+          color: "white", // Cor dos números do eixo Y
+          font: {
+            size: 20
+          }
+        }
+      }
+    }
+  }
+});
   };
 
   // ===============================
@@ -140,6 +235,7 @@ document.addEventListener("DOMContentLoaded", () => {
       <button class="btn delete">🗑️ Deletar</button>
       </div>
         `;
+
       // Atualizar botão
       card.querySelector(".update").addEventListener("click", () => {
         const newName = prompt("Novo nome do time:", team.name);
@@ -164,7 +260,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Clicar no card exibe estatísticas
       card.addEventListener("click", () => renderTeamChart(team.id));
-
       teamCardsContainer.appendChild(card);
     });
   };
