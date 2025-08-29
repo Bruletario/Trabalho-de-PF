@@ -68,7 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
         labels: {
           color: "white", 
           font: {
-            size: 20,
+            size: 15,
             weight: "bold"
           }
         }
@@ -79,7 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ticks: {
           color: "white", 
           font: {
-            size: 20
+            size: 15
           }
         }
       },
@@ -87,7 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ticks: {
           color: "white", 
           font: {
-            size: 20
+            size: 15
           }
         }
       }
@@ -111,7 +111,7 @@ document.addEventListener("DOMContentLoaded", () => {
         labels: {
           color: "white",
           font: {
-            size: 20,
+            size: 15,
             weight: "bold"
           }
         }
@@ -122,7 +122,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ticks: {
           color: "white", 
           font: {
-            size: 20
+            size:15
           }
         }
       },
@@ -130,7 +130,7 @@ document.addEventListener("DOMContentLoaded", () => {
         ticks: {
           color: "white", 
           font: {
-            size: 20
+            size: 15
           }
         }
       }
@@ -152,9 +152,9 @@ document.addEventListener("DOMContentLoaded", () => {
     plugins: {
       legend: {
         labels: {
-          color: "white", // Cor da legenda
+          color: "white", 
           font: {
-            size: 20,
+            size: 15,
             weight: "bold"
           }
         }
@@ -163,17 +163,17 @@ document.addEventListener("DOMContentLoaded", () => {
     scales: {
       x: {
         ticks: {
-          color: "white", // Cor dos nomes dos times
+          color: "white", 
           font: {
-            size: 20
+            size: 15
           }
         }
       },
       y: {
         ticks: {
-          color: "white", // Cor dos números do eixo Y
+          color: "white", 
           font: {
-            size: 20
+            size: 15
           }
         }
       }
