@@ -20,8 +20,6 @@
       color: white;
     }
 
-
-    
     /* Menu */
     ul.menu {
       border-radius: 10px;
@@ -34,6 +32,7 @@
       top: 0;
       z-index: 1000;
     }
+    
     /* Itens do menu */
     ul.menu li { float: left; }
 
@@ -60,7 +59,8 @@
     }
 
     /* Formulário */
-    form { margin-top: 20px; }
+    form { 
+      margin-top: 20px; }
     form label { 
       display: block; 
       text-align: left; 
@@ -70,13 +70,14 @@
       padding: 10px; 
       margin-top: 10px; 
       width: 100%; }
-
+    
     input[type="submit"] {
-      background-color: #04AA6D;
+      background-color: #04aa6d;
       color: white;
       border: none;
       cursor: pointer;
       border-radius: 6px;
+      font-size: 15px;
     }
 
     /* Seções */
@@ -123,7 +124,7 @@
       margin-top: 10px;
     }
 
-/* Estilização dos botões */
+    /* Estilização dos botões */
     .btn {
       flex: 1;
       padding: 8px 12px;
@@ -139,11 +140,16 @@
     .btn.update:hover { background: #2980b9; }
     .btn.delete { background: #e74c3c; }
     .btn.delete:hover { background: #c0392b; }
+
+
+
+    
     
   </style>
 </head>
 
 <body> 
+  <!--Menu-->
   <ul class="menu">
     <li><a href="#" data-section="home" class="active">Home</a></li>
     <li><a href="#" data-section="times">Times</a></li>
@@ -171,7 +177,7 @@
 
     <!-- Cadastro -->
     <section id="cadastrar">
-      <h1> 📝 Cadastrar Time</h1>
+      <h1> 📝 Cadastrar time</h1>
       <form id="form-cadastrar">
         <label>Nome do time:</label>
         <input type="text" id="timeName" required><br><br>
