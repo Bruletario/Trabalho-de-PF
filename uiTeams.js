@@ -1,5 +1,5 @@
 // ===============================
-// uiTimes.js 
+// uiTeams.js 
 // ===============================
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -142,8 +142,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const timeCardsContainer = byId("time-cards")
   const timeDetailsContainer = byId("time-details-container")
   const timeDetailsText = byId("time-details-text")
-  const ctxResultados = byId("chartTimeResults").getContext("2d")
-  const ctxGols = byId("chartTimeGoals").getContext("2d")
 
   // formulários
   const formCadastrar = byId("form-cadastrar")
@@ -211,6 +209,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const times = loadData()
     const time = times.find(t => t.id === timeId)
     if (!time) return
+
+    // pega os contextos só quando o canvas existe
+    const ctxResultados = byId("chartTimeResults").getContext("2d")
+    const ctxGols = byId("chartTimeGoals").getContext("2d")
 
     if (chartTimeResults) chartTimeResults.destroy()
     if (chartTimeGoals) chartTimeGoals.destroy()
