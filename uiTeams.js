@@ -1,373 +1,416 @@
 // ===============================
-// uiTeams.js
+// uiTimes.js 
 // ===============================
 
 document.addEventListener("DOMContentLoaded", () => {
-    // Seções e Menu
-    const sections = document.querySelectorAll("section");
-    const menuLinks = document.querySelectorAll(".menu li a");
+  // ===============================
+  // Helpers 
+  // ===============================
 
-    // Seletores da Home
-    const ctxHome = document.getElementById("homeChart").getContext("2d");
-    const selectCriterio = document.getElementById("select-criterio");
-    const selectOrdem = document.getElementById("select-ordem");
+  // atalho pra pegar elemento por id
+  const byId = id => document.getElementById(id)
 
-    // Seletores da aba Times
-    const teamCardsContainer = document.getElementById("team-cards");
-    const teamDetailsContainer = document.getElementById("team-details-container");
-    const teamDetailsText = document.getElementById("team-details-text");
-    const ctxResults = document.getElementById("chartTeamResults").getContext("2d");
-    const ctxGoals = document.getElementById("chartTeamGoals").getContext("2d");
+  // atalho pra o Selector
+  const $ = sel => document.querySelector(sel)
 
-    // Seletores do formulário
-    const formCadastrar = document.getElementById("form-cadastrar");
+  // parse numérico seguro (
+  const num = id => parseInt(byId(id).value, 10)
 
-    // Estado dos gráficos
-    let homeChart;
-    let chartTeamResults, chartTeamGoals;
+  // calcula saldo de gols
+  const goalDiff = d => d.goalsScored - d.goalsConceded
 
-    // ===============================
-    // Helpers
-    // ===============================
-    const loadData = () => {
-        let times = soccer.loadTimes();
-        if (times.length === 0) {
-            soccer.resetTimes();
-            times = soccer.loadTimes();
+  // carrega times do storag
+  const loadData = () => {
+    let times = soccer.loadTimes()
+    if (times.length === 0) {
+      soccer.resetTimes()
+      times = soccer.loadTimes()
+    }
+    return times
+  }
+
+  // preenche select de ordem se estiver vazio
+  const ensureOrderSelect = () => {
+    const selectOrdem = byId("select-ordem")
+    if (selectOrdem.options.length === 0) {
+      const options = [
+        { v: "desc", l: "Decrescente" },
+        { v: "asc", l: "Crescente" }
+      ]
+      options.forEach(o => {
+        const opt = document.createElement("option")
+        opt.value = o.v
+        opt.textContent = o.l
+        selectOrdem.appendChild(opt)
+      })
+      selectOrdem.value = "desc"
+    }
+  }
+
+  // pega a metrica escolhida para um time 
+  const getTimeMetric = (time, criterio) => {
+    if (criterio === "goalDifference") {
+      return goalDiff(time.dataTime)
+    }
+    return time.dataTime[criterio]
+  }
+
+  // preenche o formulário de edicaoo com os dados do time 
+  const fillUpdateForm = time => {
+    byId("update-time-id").value = time.id
+    byId("update-timeName").value = time.name
+    byId("update-timeFoundation").value = time.foundation
+    byId("update-timeNickname").value = time.nickname
+    byId("update-timeBestPlayer").value = time.bestPlayer
+    byId("update-timeColor").value = time.color
+    byId("update-timeVictories").value = time.dataTime.victories
+    byId("update-timeDraws").value = time.dataTime.draws
+    byId("update-timeDefeats").value = time.dataTime.defeats
+    byId("update-timeGoalsScored").value = time.dataTime.goalsScored
+    byId("update-timeGoalsConceded").value = time.dataTime.goalsConceded
+    byId("update-timeBadge").value = time.badge || ""
+  }
+
+  // le formulário de edição e monta o objeto de atualização 
+  const readUpdateForm = () => {
+    const victories = num("update-timeVictories")
+    const draws = num("update-timeDraws")
+    const defeats = num("update-timeDefeats")
+
+    return {
+      id: parseInt(byId("update-time-id").value, 10),
+      updates: {
+        name: byId("update-timeName").value,
+        foundation: num("update-timeFoundation"),
+        nickname: byId("update-timeNickname").value,
+        bestPlayer: byId("update-timeBestPlayer").value,
+        color: byId("update-timeColor").value,
+        badge: byId("update-timeBadge").value,
+        dataTime: {
+          victories,
+          draws,
+          defeats,
+          games: victories + draws + defeats,
+          goalsScored: num("update-timeGoalsScored"),
+          goalsConceded: num("update-timeGoalsConceded")
         }
-        return times;
-    };
+      }
+    }
+  }
 
-    // ===============================
-    // Renderização da Home
-    // ===============================
-    const updateHomeChart = () => {
-        const criterio = selectCriterio.value;
-        const ordem = selectOrdem.value;
+  // le formulário de cadastro e monta um time novo
+  const readCreateForm = () => {
+    const victories = num("timeVictories")
+    const defeats = num("timeDefeats")
+    const draws = num("timeDraws")
+    const goalsScored = num("timeGoalsScored")
+    const goalsConceded = num("timeGoalsConceded")
+    const games = victories + defeats + draws
 
-        let times = loadData();
+    return {
+      name: byId("timeName").value,
+      foundation: num("timeFoundation"),
+      nickname: byId("timeNickname").value,
+      bestPlayer: byId("timeBestPlayer").value,
+      color: byId("timeColor").value,
+      badge: byId("timeBadge").value || "https://via.placeholder.com/100",
+      dataTime: {
+        games,
+        victories,
+        draws,
+        defeats,
+        goalsScored,
+        goalsConceded
+      }
+    }
+  }
 
-        times.sort((a, b) => {
-            let valueA, valueB;
+  // ===============================
+  // Seletores fixos da página
+  // ===============================
 
-            if (criterio === "goalDifference") {
-                valueA = a.dataTime.goalsScored - a.dataTime.goalsConceded;
-                valueB = b.dataTime.goalsScored - b.dataTime.goalsConceded;
-            } else {
-                valueA = a.dataTime[criterio];
-                valueB = b.dataTime[criterio];
+  // seções e menu
+  const sections = document.querySelectorAll("section")
+  const menuLinks = document.querySelectorAll(".menu li a")
+
+  // home
+  const ctxHome = byId("homeChart").getContext("2d")
+  const selectCriterio = byId("select-criterio")
+  const selectOrdem = byId("select-ordem")
+
+  // aba times
+  const timeCardsContainer = byId("time-cards")
+  const timeDetailsContainer = byId("time-details-container")
+  const timeDetailsText = byId("time-details-text")
+  const ctxResultados = byId("chartTimeResults").getContext("2d")
+  const ctxGols = byId("chartTimeGoals").getContext("2d")
+
+  // formulários
+  const formCadastrar = byId("form-cadastrar")
+
+  // estado dos gráficos
+  let homeChart
+  let chartTimeResults
+  let chartTimeGoals
+
+  // ===============================
+  // Renderização da Home 
+  // ===============================
+
+  // atualiza o gráfico principal da home com base no critério/ordem
+  const updateHomeChart = () => {
+    const criterio = selectCriterio.value
+    const ordem = selectOrdem.value || "desc"
+
+    const times = [...loadData()].sort((a, b) => {
+      const va = getTimeMetric(a, criterio)
+      const vb = getTimeMetric(b, criterio)
+      return ordem === "desc" ? (vb - va) : (va - vb)
+    })
+
+    const labels = times.map(t => t.name)
+    const data = times.map(t => getTimeMetric(t, criterio))
+    const chartLabel = selectCriterio.options[selectCriterio.selectedIndex].text
+
+    if (homeChart) homeChart.destroy()
+
+    homeChart = new Chart(ctxHome, {
+      type: "bar",
+      data: {
+        labels,
+        datasets: [{
+          label: chartLabel,
+          data,
+          backgroundColor: "rgba(75, 192, 192, 0.95)"
+        }]
+      },
+      options: {
+        indexAxis: "y",
+        plugins: {
+          legend: {
+            labels: {
+              color: "white",
+              font: { size: 15, weight: "bold" }
             }
-
-            if (ordem === 'desc') {
-                return valueB - valueA;
-            } else {
-                return valueA - valueB;
-            }
-        });
-
-        const labels = times.map(t => t.name);
-        const data = times.map(t => {
-            if (criterio === "goalDifference") {
-                return t.dataTime.goalsScored - t.dataTime.goalsConceded;
-            }
-            return t.dataTime[criterio];
-        });
-        
-        const chartLabel = selectCriterio.options[selectCriterio.selectedIndex].text;
-
-        if (homeChart) {
-            homeChart.destroy();
+          }
+        },
+        scales: {
+          x: { ticks: { color: "white" } },
+          y: { ticks: { color: "white" } }
         }
+      }
+    })
+  }
 
-        homeChart = new Chart(ctxHome, {
-            type: "bar",
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: chartLabel,
-                    data: data,
-                    backgroundColor: "rgba(75, 192, 192, 0.95)",
-                }]
-            },
-            options: {
-                indexAxis: 'y', 
-                plugins: {
-                    legend: {
-                        labels: {
-                            color: "white", 
-                            font: {
-                                size: 15,
-                                weight: "bold"
-                            }
-                        }
-                    }
-                },
-                scales: {
-                    x: { ticks: { color: "white" } },
-                    y: { ticks: { color: "white" } }
-                }
-            }
-        });
-    };
+  // ===============================
+  // Detalhes de um time
+  // ===============================
 
-    // ===============================
-    // Renderização dos detalhes de um time
-    // ===============================
-    const renderTeamDetails = (teamId) => {
-        const times = loadData();
-        const team = times.find(t => t.id === teamId);
-        if (!team) return;
+  // mostra detalhes do time 
+  const renderTimeDetails = (timeId) => {
+    const times = loadData()
+    const time = times.find(t => t.id === timeId)
+    if (!time) return
 
-        if (chartTeamResults) chartTeamResults.destroy();
-        if (chartTeamGoals) chartTeamGoals.destroy();
+    if (chartTimeResults) chartTimeResults.destroy()
+    if (chartTimeGoals) chartTimeGoals.destroy()
 
-        teamDetailsContainer.style.display = 'flex';
+    timeDetailsContainer.style.display = "flex"
 
-        teamDetailsText.innerHTML = `
-            <h2>${team.name}</h2>
-            <p><b>Ano de Fundação:</b> ${team.foundation}</p>
-            <p><b>Apelido:</b> ${team.nickname}</p>
-            <p><b>Maior Ídolo:</b> ${team.bestPlayer}</p>
-            <p><b>Cores:</b> ${team.color}</p>
-            <hr style="margin: 10px 0; opacity: .3;">
-            <p><b>Total de Jogos:</b> ${team.dataTime.games}</p>
-            <p><b>Vitórias:</b> ${team.dataTime.victories}</p>
-            <p><b>Empates:</b> ${team.dataTime.draws}</p>
-            <p><b>Derrotas:</b> ${team.dataTime.defeats}</p>
-            <p><b>Gols Marcados:</b> ${team.dataTime.goalsScored}</p>
-            <p><b>Gols Sofridos:</b> ${team.dataTime.goalsConceded}</p>
-            <p><b>Saldo de Gols:</b> ${team.dataTime.goalsScored - team.dataTime.goalsConceded}</p>
-        `;
+    timeDetailsText.innerHTML = `
+      <h2>${time.name}</h2>
+      <p><b>Ano de Fundação:</b> ${time.foundation}</p>
+      <p><b>Apelido:</b> ${time.nickname}</p>
+      <p><b>Maior Ídolo:</b> ${time.bestPlayer}</p>
+      <p><b>Cores:</b> ${time.color}</p>
+      <hr style="margin: 10px 0; opacity: .3;">
+      <p><b>Total de Jogos:</b> ${time.dataTime.games}</p>
+      <p><b>Vitórias:</b> ${time.dataTime.victories}</p>
+      <p><b>Empates:</b> ${time.dataTime.draws}</p>
+      <p><b>Derrotas:</b> ${time.dataTime.defeats}</p>
+      <p><b>Gols Marcados:</b> ${time.dataTime.goalsScored}</p>
+      <p><b>Gols Sofridos:</b> ${time.dataTime.goalsConceded}</p>
+      <p><b>Saldo de Gols:</b> ${goalDiff(time.dataTime)}</p>
+    `
 
-        chartTeamResults = new Chart(ctxResults, {
-            type: "doughnut",
-            data: {
-                labels: ["Vitórias", "Empates", "Derrotas"],
-                datasets: [{
-                    data: [team.dataTime.victories, team.dataTime.draws, team.dataTime.defeats],
-                    backgroundColor: ["#2ecc71", "#f1c40f", "#e74c3c"]
-                }]
-            },
-            options: {
-                plugins: {
-                    legend: { display: true, position: 'bottom', labels: { color: 'white' } },
-                    title: { display: true, text: 'Resultados', color: 'white' }
-                }
-            }
-        });
-
-        chartTeamGoals = new Chart(ctxGoals, {
-            type: "doughnut",
-            data: {
-                labels: ["Gols Pró", "Gols Contra"],
-                datasets: [{
-                    data: [team.dataTime.goalsScored, team.dataTime.goalsConceded],
-                    backgroundColor: ["#3498db", "#95a5a6"]
-                }]
-            },
-            options: {
-                plugins: {
-                    legend: { display: true, position: 'bottom', labels: { color: 'white' } },
-                    title: { display: true, text: 'Gols', color: 'white' }
-                }
-            }
-        });
-    };
-
-    // ===============================
-    // Renderização dos cards de times
-    // ===============================
-    const renderTeamCards = () => {
-        const times = loadData();
-        const modal = document.getElementById("edit-modal");
-        
-        teamCardsContainer.innerHTML = "";
-
-        // Esconde a área de detalhes dos times ao renderizar os cards
-        teamDetailsContainer.style.display = 'none';
-        teamDetailsText.innerHTML = "<p>Selecione um time para ver as estatísticas.</p>";
-        
-        if (chartTeamResults) chartTeamResults.destroy();
-        if (chartTeamGoals) chartTeamGoals.destroy();
-
-
-        times.forEach(team => {
-            const card = document.createElement("div");
-            card.classList.add("team-card");
-            
-            card.innerHTML = `
-            <img src="${team.badge || 'https://via.placeholder.com/100'}" alt="${team.name}" class="team-logo">
-            <h3>${team.name}</h3>
-            <p>${team.nickname}</p>
-            <div class="team-actions">
-                <button class="btn update">🔄 Atualizar</button>
-                <button class="btn delete">🗑️ Deletar</button>
-            </div>
-            `;
-            
-            // Lógica do botão ATUALIZAR
-            card.querySelector(".update").addEventListener("click", () => {
-                document.getElementById("update-team-id").value = team.id;
-                document.getElementById("update-timeName").value = team.name;
-                document.getElementById("update-timeFoundation").value = team.foundation;
-                document.getElementById("update-timeNickname").value = team.nickname;
-                document.getElementById("update-timeBestPlayer").value = team.bestPlayer;
-                document.getElementById("update-timeColor").value = team.color;
-                document.getElementById("update-timeVictories").value = team.dataTime.victories;
-                document.getElementById("update-timeDraws").value = team.dataTime.draws;
-                document.getElementById("update-timeDefeats").value = team.dataTime.defeats;
-                document.getElementById("update-timeGoalsScored").value = team.dataTime.goalsScored;
-                document.getElementById("update-timeGoalsConceded").value = team.dataTime.goalsConceded;
-                document.getElementById("update-teamBadge").value = team.badge || ''; // Adicionado para a URL
-                
-                modal.style.display = "block";
-            });
-
-            // Lógica do botão DELETAR
-            card.querySelector(".delete").addEventListener("click", () => {
-                if (!confirm(`Deseja deletar o time ${team.name}?`)) return;
-                const updatedTimes = soccer.deleteTime(loadData(), team.id);
-                soccer.saveTimes(updatedTimes);
-                renderTeamCards();
-                updateHomeChart();
-            });
-
-            // Clicar no card para exibir detalhes
-            card.addEventListener("click", (e) => {
-                if (e.target.classList.contains('btn')) return;
-                renderTeamDetails(team.id);
-            });
-            teamCardsContainer.appendChild(card);
-        });
-    };
-
-    // ===============================
-    // Lógica do Modal de Edição
-    // ===============================
-    const modal = document.getElementById("edit-modal");
-    const updateForm = document.getElementById("form-update");
-    const closeButton = document.querySelector(".close-button");
-
-    closeButton.addEventListener("click", () => {
-        modal.style.display = "none";
-    });
-
-    window.addEventListener("click", (event) => {
-        if (event.target == modal) {
-            modal.style.display = "none";
+    chartTimeResults = new Chart(ctxResultados, {
+      type: "doughnut",
+      data: {
+        labels: ["Vitórias", "Empates", "Derrotas"],
+        datasets: [{
+          data: [time.dataTime.victories, time.dataTime.draws, time.dataTime.defeats],
+          backgroundColor: ["#2ecc71", "#f1c40f", "#e74c3c"]
+        }]
+      },
+      options: {
+        plugins: {
+          legend: { display: true, position: "bottom", labels: { color: "white" } },
+          title: { display: true, text: "Resultados", color: "white" }
         }
-    });
+      }
+    })
 
-    updateForm.addEventListener("submit", (e) => {
-        e.preventDefault();
-
-        const teamId = parseInt(document.getElementById("update-team-id").value);
-        const victories = parseInt(document.getElementById("update-timeVictories").value);
-        const draws = parseInt(document.getElementById("update-timeDraws").value);
-        const defeats = parseInt(document.getElementById("update-timeDefeats").value);
-        
-        const updates = {
-            name: document.getElementById("update-timeName").value,
-            foundation: parseInt(document.getElementById("update-timeFoundation").value),
-            nickname: document.getElementById("update-timeNickname").value,
-            bestPlayer: document.getElementById("update-timeBestPlayer").value,
-            color: document.getElementById("update-timeColor").value,
-            badge: document.getElementById("update-teamBadge").value, // Captura a URL
-            dataTime: {
-                victories: victories,
-                draws: draws,
-                defeats: defeats,
-                games: victories + draws + defeats,
-                goalsScored: parseInt(document.getElementById("update-timeGoalsScored").value),
-                goalsConceded: parseInt(document.getElementById("update-timeGoalsConceded").value)
-            }
-        };
-        
-        const times = loadData();
-        const updatedTimes = soccer.updateTimes(times, teamId, updates);
-        soccer.saveTimes(updatedTimes);
-
-        modal.style.display = "none";
-        renderTeamCards();
-        updateHomeChart();
-        
-        // Mantém os detalhes do time abertos se ele for o que foi editado
-        const selectedTeamId = document.querySelector("#team-details-text h2")?.textContent === updates.name ? teamId : null;
-        if (selectedTeamId) {
-            renderTeamDetails(selectedTeamId);
+    chartTimeGoals = new Chart(ctxGols, {
+      type: "doughnut",
+      data: {
+        labels: ["Gols Pró", "Gols Contra"],
+        datasets: [{
+          data: [time.dataTime.goalsScored, time.dataTime.goalsConceded],
+          backgroundColor: ["#3498db", "#95a5a6"]
+        }]
+      },
+      options: {
+        plugins: {
+          legend: { display: true, position: "bottom", labels: { color: "white" } },
+          title: { display: true, text: "Gols", color: "white" }
         }
-    });
+      }
+    })
+  }
 
-    // ===============================
-    // Cadastro de Time
-    // ===============================
-    formCadastrar.addEventListener("submit", (e) => {
-        e.preventDefault();
+  // ===============================
+  // Cards do time
+  // ===============================
 
-        const victories = parseInt(document.getElementById("timeVictories").value, 10);
-        const defeats = parseInt(document.getElementById("timeDefeats").value, 10);
-        const draws = parseInt(document.getElementById("timeDraws").value, 10);
-        const goalsScored = parseInt(document.getElementById("timeGoalsScored").value, 10);
-        const goalsConceded = parseInt(document.getElementById("timeGoalsConceded").value, 10);
-        const games = victories + defeats + draws;
+  // monta a grade de cards de time
+  const renderTimeCards = () => {
+    const times = loadData()
+    const modal = byId("edit-modal")
 
-        const times = loadData();
-        const newTime = {
-            name: document.getElementById("timeName").value,
-            foundation: parseInt(document.getElementById("timeFoundation").value, 10),
-            nickname: document.getElementById("timeNickname").value,
-            bestPlayer: document.getElementById("timeBestPlayer").value,
-            color: document.getElementById("timeColor").value,
-            badge: document.getElementById("timeBadge").value || 'https://via.placeholder.com/100', // Pega a URL ou usa um padrão
-            dataTime: { 
-                games: games, 
-                victories: victories, 
-                draws: draws,
-                defeats: defeats, 
-                goalsScored: goalsScored, 
-                goalsConceded: goalsConceded
-            }
-        };
+    timeCardsContainer.innerHTML = ""
 
-        const updated = soccer.addTimes(times, newTime);
-        soccer.saveTimes(updated);
+    // esconde detalhes ao recarregar a pagina cards
+    timeDetailsContainer.style.display = "none"
+    timeDetailsText.innerHTML = "<p>Selecione um time para ver as estatísticas.</p>"
 
-        alert("✅ Time cadastrado com sucesso!");
-        formCadastrar.reset();
-        renderTeamCards();
-        updateHomeChart();
-    });
+    if (chartTimeResults) chartTimeResults.destroy()
+    if (chartTimeGoals) chartTimeGoals.destroy()
 
-    // ===============================
-    // Eventos de Filtro e Ordenação
-    // ===============================
-    selectCriterio.addEventListener("change", updateHomeChart);
-    selectOrdem.addEventListener("change", updateHomeChart);
+    times.forEach(time => {
+      const card = document.createElement("div")
+      card.classList.add("time-card")
 
-    // ===============================
-    // Navegação do Menu
-    // ===============================
-    menuLinks.forEach(link => {
-        link.addEventListener("click", () => {
-            const sectionId = link.getAttribute("data-section");
+      card.innerHTML = `
+        <img src="${time.badge || 'https://via.placeholder.com/100'}" alt="${time.name}" class="time-logo">
+        <h3>${time.name}</h3>
+        <p>${time.nickname}</p>
+        <div class="time-actions">
+          <button class="btn update">🔄 Atualizar</button>
+          <button class="btn delete">🗑️ Deletar</button>
+        </div>
+      `
 
-            menuLinks.forEach(l => l.classList.remove("active"));
-            link.classList.add("active");
+      // botão atualizar abre modal com dados do time
+      card.querySelector(".update").addEventListener("click", () => {
+        fillUpdateForm(time)
+        modal.style.display = "block"
+      })
 
-            sections.forEach(sec => sec.classList.remove("active"));
-            document.getElementById(sectionId).classList.add("active");
+      // botão deletar remove o time e atualiza tela
+      card.querySelector(".delete").addEventListener("click", () => {
+        if (!confirm(`Deseja deletar o time ${time.name}?`)) return
+        const updatedTimes = soccer.deleteTime(loadData(), time.id)
+        soccer.saveTimes(updatedTimes)
+        renderTimeCards()
+        updateHomeChart()
+      })
 
-            if (sectionId === "home") updateHomeChart(); 
-            
-            if (sectionId === "times") {
-                renderTeamCards();
-            }
-        });
-    });
+      // clique no card mostra detalhes
+      card.addEventListener("click", (e) => {
+        if (e.target.classList.contains("btn")) return
+        renderTimeDetails(time.id)
+      })
 
-    // ===============================
-    // Inicialização
-    // ===============================
-    updateHomeChart(); 
-    renderTeamCards();
-});
+      timeCardsContainer.appendChild(card)
+    })
+  }
+
+  // ===============================
+  // Modal de Edição
+  // ===============================
+
+  const modal = byId("edit-modal")
+  const updateForm = byId("form-update")
+  const closeButton = $(".close-button")
+
+  // fecha o modal no X
+  closeButton.addEventListener("click", () => {
+    modal.style.display = "none"
+  })
+
+  // fecha o modal clicando fora
+  window.addEventListener("click", (event) => {
+    if (event.target === modal) modal.style.display = "none"
+  })
+
+  // salva edicao do time e atualiza tela
+  updateForm.addEventListener("submit", (e) => {
+    e.preventDefault()
+
+    const { id, updates } = readUpdateForm()
+    const times = loadData()
+    const updatedTimes = soccer.updateTimes(times, id, updates)
+    soccer.saveTimes(updatedTimes)
+
+    modal.style.display = "none"
+    renderTimeCards()
+    updateHomeChart()
+
+    // se os detalhes abertos eram desse time continua atualizados
+    const openedName = $("#time-details-text h2")?.textContent
+    if (openedName && openedName === updates.name) {
+      renderTimeDetails(id)
+    }
+  })
+
+  // ===============================
+  // Cadastro de Time
+  // ===============================
+
+  // cria um time novo e atualiza tudo
+  formCadastrar.addEventListener("submit", (e) => {
+    e.preventDefault()
+
+    const times = loadData()
+    const newTime = readCreateForm()
+    const updated = soccer.addTimes(times, newTime)
+    soccer.saveTimes(updated)
+
+    alert("✅ Time cadastrado com sucesso!")
+    formCadastrar.reset()
+    renderTimeCards()
+    updateHomeChart()
+  })
+
+  // ===============================
+  // Filtros/ordenacão + navegação
+  // ===============================
+
+  // atualiza gráfico quando mudar a ordem
+  selectCriterio.addEventListener("change", updateHomeChart)
+  selectOrdem.addEventListener("change", updateHomeChart)
+
+  // navegação do menu
+  menuLinks.forEach(link => {
+    link.addEventListener("click", () => {
+      const sectionId = link.getAttribute("data-section")
+
+      menuLinks.forEach(l => l.classList.remove("active"))
+      link.classList.add("active")
+
+      sections.forEach(sec => sec.classList.remove("active"))
+      byId(sectionId).classList.add("active")
+
+      if (sectionId === "home") updateHomeChart()
+      if (sectionId === "times") renderTimeCards()
+    })
+  })
+
+  // ===============================
+  // Inicialização
+  // ===============================
+
+  ensureOrderSelect()
+  updateHomeChart()
+  renderTimeCards()
+})
