@@ -1,3 +1,4 @@
+
 const soccer = (() => {
 
 const STORAGE_KEY = "liga::times"
@@ -35,8 +36,9 @@ const resetTimes = () => {
       badge: "https://tse1.mm.bing.net/th/id/OIP.LMOAYurYCi2q9nmSLQqVIAHaHa?pid=Api&P=0&h=180",
       dataTime: {
         games: 5850,
-        victories: 2830,
-        defeats: 1780,
+        victories: 3105,
+        draws: 1576,
+        defeats: 1567,
         goalsScored: 9700,
         goalsConceded: 7800
       }
@@ -51,8 +53,9 @@ const resetTimes = () => {
       badge: "https://tse4.mm.bing.net/th/id/OIP.o8sjkU0ruMxq6E326AJzsQHaJB?pid=Api&P=0&h=180",
       dataTime: {
         games: 6000,
-        victories: 3100,
-        defeats: 1600,
+        victories: 3570,
+        draws: 1568,
+        defeats: 1567,
         goalsScored: 10500,
         goalsConceded: 7600
       }
@@ -67,12 +70,63 @@ const resetTimes = () => {
       badge: "https://tse3.mm.bing.net/th/id/OIP.UpSijRN-ylVVdEXX4ODzUwHaHx?pid=Api&P=0&h=180",
       dataTime: {
         games: 5900,
-        victories: 3000,
-        defeats: 1650,
+        victories: 3105,
+         draws: 1395,
+        defeats: 1550,
         goalsScored: 12300,
         goalsConceded: 7900
       }
-    },
+    },{
+    id: 4,
+    name: "São Paulo",
+    foundation: 1930,
+    color: "vermelho, preto e branco",
+    nickname: "Tricolor Paulista",
+    bestPlayer: "Rogério Ceni",
+    badge: "https://tse1.mm.bing.net/th/id/OIP.p5invQH0X7YNhae0dyHReQHaHk?pid=Api&P=0&h=180",
+    dataTime: {
+      games: 6020,
+      victories: 3050,
+      draws: 1610,
+      defeats: 1360,
+      goalsScored: 9500,
+      goalsConceded: 6900
+    }
+  },
+  {
+    id: 5,
+    name: "Palmeiras",
+    foundation: 1914,
+    color: "verde e branco",
+    nickname: "Verdão",
+    bestPlayer: "Ademir da Guia",
+    badge: "https://tse3.mm.bing.net/th/id/OIP.YhpBd8JpLrx2zV4Gg1zmJgHaHa?pid=Api&P=0&h=180",
+    dataTime: {
+      games: 6200,
+      victories: 3300,
+      draws: 1650,
+      defeats: 1250,
+      goalsScored: 10100,
+      goalsConceded: 7200
+    }
+  },
+  {
+    id: 6,
+  name: "Vasco da Gama",
+  foundation: 1898,
+  color: "preto, branco e vermelho",
+  nickname: "Gigante da Colina",
+  bestPlayer: "Roberto Dinamite",
+  badge: "https://tse3.mm.bing.net/th/id/OIP.cd6z-TYZJh-kC5xfaDIh_wHaJX?pid=Api&P=0&h=180",
+  dataTime: {
+    games: 5500,
+    victories: 2800,
+    draws: 1450,
+    defeats: 1250,
+    goalsScored: 9000,
+    goalsConceded: 7000
+    }
+  }
   ];
 
   saveTimes(times);
