@@ -1,418 +1,424 @@
+
 // ===============================
-// uiTeams.js 
+// uiTeams.js
 // ===============================
 
 document.addEventListener("DOMContentLoaded", () => {
-  // ===============================
-  // Helpers 
-  // ===============================
+  // Seções e Menu
+  const sections = document.querySelectorAll("section");
+  const menuLinks = document.querySelectorAll(".menu li a");
 
-  // atalho pra pegar elemento por id
-  const byId = id => document.getElementById(id)
+  // Seletores da Home 
+  const ctxHome = document.getElementById("homeChart").getContext("2d");
+  const selectCriterio = document.getElementById("select-criterio");
+  const selectOrdem = document.getElementById("select-ordem");
 
-  // atalho pra o Selector
-  const $ = sel => document.querySelector(sel)
+  // Seletores da aba Times
+ 
+  const teamCardsContainer = document.getElementById("team-cards");
 
-  // parse numérico seguro (
-  const num = id => parseInt(byId(id).value, 10)
 
-  // calcula saldo de gols
-  const goalDiff = d => d.goalsScored - d.goalsConceded
+  // Seletores do formulário
+  const formCadastrar = document.getElementById("form-cadastrar");
 
-  // carrega times do storag
+  // Estado dos gráficos
+  let homeChart;
+
+  
+  // ============= Helpers ===============
+
   const loadData = () => {
-    let times = soccer.loadTimes()
+    let times = soccer.loadTimes();
     if (times.length === 0) {
-      soccer.resetTimes()
-      times = soccer.loadTimes()
+      soccer.resetTimes();
+      times = soccer.loadTimes();
     }
-    return times
-  }
+    return times;
+  };
 
-  // preenche select de ordem se estiver vazio
-  const ensureOrderSelect = () => {
-    const selectOrdem = byId("select-ordem")
-    if (selectOrdem.options.length === 0) {
-      const options = [
-        { v: "desc", l: "Decrescente" },
-        { v: "asc", l: "Crescente" }
-      ]
-      options.forEach(o => {
-        const opt = document.createElement("option")
-        opt.value = o.v
-        opt.textContent = o.l
-        selectOrdem.appendChild(opt)
-      })
-      selectOrdem.value = "desc"
-    }
-  }
+  // ============== Renderização da Home =======================
 
-  // pega a metrica escolhida para um time 
-  const getTimeMetric = (time, criterio) => {
-    if (criterio === "goalDifference") {
-      return goalDiff(time.dataTime)
-    }
-    return time.dataTime[criterio]
-  }
-
-  // preenche o formulário de edicaoo com os dados do time 
-  const fillUpdateForm = time => {
-    byId("update-time-id").value = time.id
-    byId("update-timeName").value = time.name
-    byId("update-timeFoundation").value = time.foundation
-    byId("update-timeNickname").value = time.nickname
-    byId("update-timeBestPlayer").value = time.bestPlayer
-    byId("update-timeColor").value = time.color
-    byId("update-timeVictories").value = time.dataTime.victories
-    byId("update-timeDraws").value = time.dataTime.draws
-    byId("update-timeDefeats").value = time.dataTime.defeats
-    byId("update-timeGoalsScored").value = time.dataTime.goalsScored
-    byId("update-timeGoalsConceded").value = time.dataTime.goalsConceded
-    byId("update-timeBadge").value = time.badge || ""
-  }
-
-  // le formulário de edição e monta o objeto de atualização 
-  const readUpdateForm = () => {
-    const victories = num("update-timeVictories")
-    const draws = num("update-timeDraws")
-    const defeats = num("update-timeDefeats")
-
-    return {
-      id: parseInt(byId("update-time-id").value, 10),
-      updates: {
-        name: byId("update-timeName").value,
-        foundation: num("update-timeFoundation"),
-        nickname: byId("update-timeNickname").value,
-        bestPlayer: byId("update-timeBestPlayer").value,
-        color: byId("update-timeColor").value,
-        badge: byId("update-timeBadge").value,
-        dataTime: {
-          victories,
-          draws,
-          defeats,
-          games: victories + draws + defeats,
-          goalsScored: num("update-timeGoalsScored"),
-          goalsConceded: num("update-timeGoalsConceded")
-        }
-      }
-    }
-  }
-
-  // le formulário de cadastro e monta um time novo
-  const readCreateForm = () => {
-    const victories = num("timeVictories")
-    const defeats = num("timeDefeats")
-    const draws = num("timeDraws")
-    const goalsScored = num("timeGoalsScored")
-    const goalsConceded = num("timeGoalsConceded")
-    const games = victories + defeats + draws
-
-    return {
-      name: byId("timeName").value,
-      foundation: num("timeFoundation"),
-      nickname: byId("timeNickname").value,
-      bestPlayer: byId("timeBestPlayer").value,
-      color: byId("timeColor").value,
-      badge: byId("timeBadge").value || "https://via.placeholder.com/100",
-      dataTime: {
-        games,
-        victories,
-        draws,
-        defeats,
-        goalsScored,
-        goalsConceded
-      }
-    }
-  }
-
-  // ===============================
-  // Seletores fixos da página
-  // ===============================
-
-  // seções e menu
-  const sections = document.querySelectorAll("section")
-  const menuLinks = document.querySelectorAll(".menu li a")
-
-  // home
-  const ctxHome = byId("homeChart").getContext("2d")
-  const selectCriterio = byId("select-criterio")
-  const selectOrdem = byId("select-ordem")
-
-  // aba times
-  const timeCardsContainer = byId("time-cards")
-  const timeDetailsContainer = byId("time-details-container")
-  const timeDetailsText = byId("time-details-text")
-
-  // formulários
-  const formCadastrar = byId("form-cadastrar")
-
-  // estado dos gráficos
-  let homeChart
-  let chartTimeResults
-  let chartTimeGoals
-
-  // ===============================
-  // Renderização da Home 
-  // ===============================
-
-  // atualiza o gráfico principal da home com base no critério/ordem
   const updateHomeChart = () => {
-    const criterio = selectCriterio.value
-    const ordem = selectOrdem.value || "desc"
+    //Pega os valores selecionados pelo usuário
+    const criterio = selectCriterio.value;
+    const ordem = selectOrdem.value;
 
-    const times = [...loadData()].sort((a, b) => {
-      const va = getTimeMetric(a, criterio)
-      const vb = getTimeMetric(b, criterio)
-      return ordem === "desc" ? (vb - va) : (va - vb)
-    })
+    //Carrega os dados dos times
+    let times = loadData();
 
-    const labels = times.map(t => t.name)
-    const data = times.map(t => getTimeMetric(t, criterio))
-    const chartLabel = selectCriterio.options[selectCriterio.selectedIndex].text
+    //Ordena o array de times de acordo com a seleção
+    times.sort((a, b) => {
+        let valueA, valueB;
 
-    if (homeChart) homeChart.destroy()
-
-    homeChart = new Chart(ctxHome, {
-      type: "bar",
-      data: {
-        labels,
-        datasets: [{
-          label: chartLabel,
-          data,
-          backgroundColor: "rgba(75, 192, 192, 0.95)"
-        }]
-      },
-      options: {
-        indexAxis: "y",
-        plugins: {
-          legend: {
-            labels: {
-              color: "white",
-              font: { size: 15, weight: "bold" }
-            }
-          }
-        },
-        scales: {
-          x: { ticks: { color: "white" } },
-          y: { ticks: { color: "white" } }
+        // Caso especial para "Saldo de Gols", que precisa ser calculado
+        if (criterio === "goalDifference") {
+            valueA = a.dataTime.goalsScored - a.dataTime.goalsConceded;
+            valueB = b.dataTime.goalsScored - b.dataTime.goalsConceded;
+        } else {
+            // Pega o valor diretamente do objeto (ex: vitorias, derrotas, etc)
+            valueA = a.dataTime[criterio];
+            valueB = b.dataTime[criterio];
         }
-      }
-    })
-  }
+    });
 
-  // ===============================
-  // Detalhes de um time
-  // ===============================
+    //Prepara os dados para o gráfico após a ordenação
+    const labels = times.map(t => t.name);
+    const data = times.map(t => {
+        if (criterio === "goalDifference") {
+            return t.dataTime.goalsScored - t.dataTime.goalsConceded;
+        }
+        return t.dataTime[criterio];
+    });
+    
+    // Pega o texto da opção selecionada para usar como título do gráfico
+    const chartLabel = selectCriterio.options[selectCriterio.selectedIndex].text;
 
-  // mostra detalhes do time 
-  const renderTimeDetails = (timeId) => {
-    const times = loadData()
-    const time = times.find(t => t.id === timeId)
-    if (!time) return
+    //Destrói o gráfico antigo, se ele existir, para desenhar um novo
+    if (homeChart) {
+        homeChart.destroy();
+    }
 
-    // pega os contextos só quando o canvas existe
-    const ctxResultados = byId("chartTimeResults").getContext("2d")
-    const ctxGols = byId("chartTimeGoals").getContext("2d")
+    //Cria o novo gráfico
+    homeChart = new Chart(ctxHome, {
+        type: "bar", // O tipo ainda é 'bar'
+        data: {
+            labels: labels,
+            datasets: [{
+                label: chartLabel,
+                data: data,
+                backgroundColor: "rgba(44, 189, 189, 1)",
+            }]
+        },
+        options: {
+            indexAxis: 'y', 
+            plugins: {
+                legend: {
+                    labels: {
+                        color: "white",
+                        font: { size: 15,
+                                weight: "bold" }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { color: "white",
+                     font: { size: 15
+                     }}
+                },
+                y: {
+                    ticks: { color: "white",
+                       font: { size: 15 
 
-    if (chartTimeResults) chartTimeResults.destroy()
-    if (chartTimeGoals) chartTimeGoals.destroy()
+                       }}
+                }
+            }
+        }
+    });
+  };
+  
+ // ==================== Renderização dos DETALHES de um time ===============================
+  let chartTeamResults, chartTeamGoals;
 
-    timeDetailsContainer.style.display = "flex"
+  const renderTeamDetails = (teamId) => {
+    const times = loadData();
+    const team = times.find(t => t.id === teamId);
+    if (!team) return;
 
-    timeDetailsText.innerHTML = `
-      <h2>${time.name}</h2>
-      <p><b>Ano de Fundação:</b> ${time.foundation}</p>
-      <p><b>Apelido:</b> ${time.nickname}</p>
-      <p><b>Maior Ídolo:</b> ${time.bestPlayer}</p>
-      <p><b>Cores:</b> ${time.color}</p>
-      <hr style="margin: 10px 0; opacity: .3;">
-      <p><b>Total de Jogos:</b> ${time.dataTime.games}</p>
-      <p><b>Vitórias:</b> ${time.dataTime.victories}</p>
-      <p><b>Empates:</b> ${time.dataTime.draws}</p>
-      <p><b>Derrotas:</b> ${time.dataTime.defeats}</p>
-      <p><b>Gols Marcados:</b> ${time.dataTime.goalsScored}</p>
-      <p><b>Gols Sofridos:</b> ${time.dataTime.goalsConceded}</p>
-      <p><b>Saldo de Gols:</b> ${goalDiff(time.dataTime)}</p>
-    `
+    // Seleciona o container de texto
+    const teamDetailsText = document.getElementById("team-details-text");
 
-    chartTimeResults = new Chart(ctxResultados, {
+    // Preenche com todas as informações do time
+    teamDetailsText.innerHTML = `
+      <h2>${team.name}</h2>
+      <p><b>Ano de Fundação:</b> ${team.foundation}</p>
+      <p><b>Apelido:</b> ${team.nickname}</p>
+      <p><b>Maior Ídolo:</b> ${team.bestPlayer}</p>
+      <p><b>Cores:</b> ${team.color}</p>
+      <hr style="margin: 10px 0;">
+      <p><b>Total de Jogos:</b> ${team.dataTime.games}</p>
+      <p><b>Vitórias:</b> ${team.dataTime.victories}</p>
+      <p><b>Empates:</b> ${team.dataTime.draws}</p>
+      <p><b>Derrotas:</b> ${team.dataTime.defeats}</p>
+      <p><b>Gols Marcados:</b> ${team.dataTime.goalsScored}</p>
+      <p><b>Gols Sofridos:</b> ${team.dataTime.goalsConceded}</p>
+      <p><b>Saldo de Gols:</b> ${team.dataTime.goalsScored - team.dataTime.goalsConceded}</p>
+    `;
+
+    // Destrói gráficos antigos se existirem
+    if (chartTeamResults) chartTeamResults.destroy();
+    if (chartTeamGoals) chartTeamGoals.destroy();
+
+    // Cria o primeiro gráfico: Vitórias, Empates e Derrotas
+    const ctxResults = document.getElementById("chartTeamResults").getContext("2d");
+    chartTeamResults = new Chart(ctxResults, {
       type: "doughnut",
       data: {
         labels: ["Vitórias", "Empates", "Derrotas"],
         datasets: [{
-          data: [time.dataTime.victories, time.dataTime.draws, time.dataTime.defeats],
+          data: [team.dataTime.victories, team.dataTime.draws, team.dataTime.defeats],
           backgroundColor: ["#2ecc71", "#f1c40f", "#e74c3c"]
         }]
       },
       options: {
         plugins: {
-          legend: { display: true, position: "bottom", labels: { color: "white" } },
-          title: { display: true, text: "Resultados", color: "white" }
+          legend: { display: true, position: 'bottom', labels: { color: 'white' } },
+          title: { display: true, text: 'Resultados', color: 'white' }
         }
       }
-    })
+    });
 
-    chartTimeGoals = new Chart(ctxGols, {
+    // Cria o segundo gráfico: Gols Pró e Contra
+    const ctxGoals = document.getElementById("chartTeamGoals").getContext("2d");
+    chartTeamGoals = new Chart(ctxGoals, {
       type: "doughnut",
       data: {
         labels: ["Gols Pró", "Gols Contra"],
         datasets: [{
-          data: [time.dataTime.goalsScored, time.dataTime.goalsConceded],
+          data: [team.dataTime.goalsScored, team.dataTime.goalsConceded],
           backgroundColor: ["#3498db", "#95a5a6"]
         }]
       },
       options: {
         plugins: {
-          legend: { display: true, position: "bottom", labels: { color: "white" } },
-          title: { display: true, text: "Gols", color: "white" }
+          legend: { display: true, position: 'bottom', labels: { color: 'white' } },
+          title: { display: true, text: 'Gols', color: 'white' }
         }
       }
-    })
-  }
+    });
+  };
 
-  // ===============================
-  // Cards do time
-  // ===============================
+  // ========================= Renderização dos cards de times ==========================
+  const renderTeamCards = () => {
+    const times = loadData();
+    const modal = document.getElementById("edit-modal");
+    const updateForm = document.getElementById("form-update");
 
-  // monta a grade de cards de time
-  const renderTimeCards = () => {
-    const times = loadData()
-    const modal = byId("edit-modal")
+    teamCardsContainer.innerHTML = "";
 
-    timeCardsContainer.innerHTML = ""
-
-    // esconde detalhes ao recarregar a pagina cards
-    timeDetailsContainer.style.display = "none"
-    timeDetailsText.innerHTML = "<p>Selecione um time para ver as estatísticas.</p>"
-
-    if (chartTimeResults) chartTimeResults.destroy()
-    if (chartTimeGoals) chartTimeGoals.destroy()
-
-    times.forEach(time => {
-      const card = document.createElement("div")
-      card.classList.add("time-card")
+    times.forEach(team => {
+      const card = document.createElement("div");
+      card.classList.add("team-card");
 
       card.innerHTML = `
-        <img src="${time.badge || 'https://via.placeholder.com/100'}" alt="${time.name}" class="time-logo">
-        <h3>${time.name}</h3>
-        <p>${time.nickname}</p>
-        <div class="time-actions">
+        <img src="${team.badge || 'https://via.placeholder.com/100'}" alt="${team.name}" class="team-logo">
+        <h3>${team.name}</h3>
+        <p>${team.nickname}</p>
+        <div class="team-actions">
           <button class="btn update">🔄 Atualizar</button>
           <button class="btn delete">🗑️ Deletar</button>
         </div>
-      `
+      `;
 
-      // botão atualizar abre modal com dados do time
+      // ------ LÓGICA DO BOTÃO ATUALIZAR ------
+      // Formulário do modal com os dados atuais do time
       card.querySelector(".update").addEventListener("click", () => {
-        fillUpdateForm(time)
-        modal.style.display = "block"
-      })
+        // Formulário do modal com os dados atuais do time
+        document.getElementById("update-team-id").value = team.id;
+        document.getElementById("update-timeName").value = team.name;
+        document.getElementById("update-timeFoundation").value = team.foundation;
+        document.getElementById("update-timeNickname").value = team.nickname;
+        document.getElementById("update-timeBestPlayer").value = team.bestPlayer;
+        document.getElementById("update-timeColor").value = team.color;
+        document.getElementById("update-timeVictories").value = team.dataTime.victories;
+        document.getElementById("update-timeDraws").value = team.dataTime.draws;
+        document.getElementById("update-timeDefeats").value = team.dataTime.defeats;
+        document.getElementById("update-timeGoalsScored").value = team.dataTime.goalsScored;
+        document.getElementById("update-timeGoalsConceded").value = team.dataTime.goalsConceded;
+        
+        // Exibe o modal
+        modal.style.display = "block";
+      });
 
-      // botão deletar remove o time e atualiza tela
+      // --- LÓGICA DO BOTÃO DELETAR ---
       card.querySelector(".delete").addEventListener("click", () => {
-        if (!confirm(`Deseja deletar o time ${time.name}?`)) return
-        const updatedTimes = soccer.deleteTime(loadData(), time.id)
-        soccer.saveTimes(updatedTimes)
-        renderTimeCards()
-        updateHomeChart()
-      })
+        if (!confirm(`Deseja deletar o time ${team.name}?`)) return;
+        const updatedTimes = soccer.deleteTime(loadData(), team.id);
+        soccer.saveTimes(updatedTimes);
+        renderTeamCards();
+        updateHomeChart();
+        teamInfo.innerHTML = "<p>Selecione um time para ver estatísticas</p>";
+        if (chartTeamBalance) chartTeamBalance.destroy();
+      });
 
-      // clique no card mostra detalhes
+      // Impede que o clique nos botões dispare este evento
       card.addEventListener("click", (e) => {
-        if (e.target.classList.contains("btn")) return
-        renderTimeDetails(time.id)
-      })
+        if (e.target.classList.contains('btn')) return;
+        renderTeamDetails(team.id);
+      });
+      teamCardsContainer.appendChild(card);
+    });
+  };
 
-      timeCardsContainer.appendChild(card)
-    })
-  }
+// ======================= Lógica do Modal de Edição ==========================
+  const modal = document.getElementById("edit-modal");
+  const updateForm = document.getElementById("form-update");
+  const closeButton = document.querySelector(".close-button");
 
-  // ===============================
-  // Modal de Edição
-  // ===============================
-
-  const modal = byId("edit-modal")
-  const updateForm = byId("form-update")
-  const closeButton = $(".close-button")
-
-  // fecha o modal no X
+  // Fecha o modal ao clicar no X
   closeButton.addEventListener("click", () => {
-    modal.style.display = "none"
-  })
+    modal.style.display = "none";
+  });
 
-  // fecha o modal clicando fora
+  // Fecha o modal ao clicar fora dele
   window.addEventListener("click", (event) => {
-    if (event.target === modal) modal.style.display = "none"
-  })
-
-  // salva edicao do time e atualiza tela
-  updateForm.addEventListener("submit", (e) => {
-    e.preventDefault()
-
-    const { id, updates } = readUpdateForm()
-    const times = loadData()
-    const updatedTimes = soccer.updateTimes(times, id, updates)
-    soccer.saveTimes(updatedTimes)
-
-    modal.style.display = "none"
-    renderTimeCards()
-    updateHomeChart()
-
-    // se os detalhes abertos eram desse time continua atualizados
-    const openedName = $("#time-details-text h2")?.textContent
-    if (openedName && openedName === updates.name) {
-      renderTimeDetails(id)
+    if (event.target == modal) {
+      modal.style.display = "none";
     }
-  })
+  });
 
-  // ===============================
-  // Cadastro de Time
-  // ===============================
+  // Salva as alterações do formulário de edição
+  updateForm.addEventListener("submit", (e) => {
+    e.preventDefault();
 
-  // cria um time novo e atualiza tudo
-  formCadastrar.addEventListener("submit", (e) => {
-    e.preventDefault()
+    const teamId = parseInt(document.getElementById("update-team-id").value);
+    const victories = parseInt(document.getElementById("update-timeVictories").value);
+    const draws = parseInt(document.getElementById("update-timeDraws").value);
+    const defeats = parseInt(document.getElementById("update-timeDefeats").value);
 
-    const times = loadData()
-    const newTime = readCreateForm()
-    const updated = soccer.addTimes(times, newTime)
-    soccer.saveTimes(updated)
+    const updates = {
+      name: document.getElementById("update-timeName").value,
+      foundation: parseInt(document.getElementById("update-timeFoundation").value),
+      nickname: document.getElementById("update-timeNickname").value,
+      bestPlayer: document.getElementById("update-timeBestPlayer").value,
+      color: document.getElementById("update-timeColor").value,
+      dataTime: {
+        victories: victories,
+        draws: draws,
+        defeats: defeats,
+        games: victories + draws + defeats,
+        goalsScored: parseInt(document.getElementById("update-timeGoalsScored").value),
+        goalsConceded: parseInt(document.getElementById("update-timeGoalsConceded").value)
+      }
+    };
+    
+    const times = loadData();
+    const updatedTimes = soccer.updateTimes(times, teamId, updates);
+    soccer.saveTimes(updatedTimes);
 
-    alert("✅ Time cadastrado com sucesso!")
-    formCadastrar.reset()
-    renderTimeCards()
-    updateHomeChart()
-  })
+    modal.style.display = "none";
+    renderTeamCards();
+    updateHomeChart();
+    
+    // Atualiza o gráfico de detalhes se o time editado estiver selecionado
+    const selectedTeamInfo = document.querySelector("#time-info h2");
+    if (selectedTeamInfo && selectedTeamInfo.textContent === updates.name) {
+        renderTeamDetails(teamId);
+    }
+  });
 
-  // ===============================
-  // Filtros/ordenacão + navegação
-  // ===============================
+ 
+// ================ Cadastro de Time ===============
 
-  // atualiza gráfico quando mudar a ordem
-  selectCriterio.addEventListener("change", updateHomeChart)
-  selectOrdem.addEventListener("change", updateHomeChart)
 
-  // navegação do menu
+formCadastrar.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const timeName = document.getElementById("timeName").value;
+
+  const submitButton = formCadastrar.querySelector('input[type="submit"]');
+  submitButton.value = "Buscando logo, aguarde...";
+  submitButton.disabled = true;
+
+  const options = {
+    method: 'GET',
+    headers: {
+      'x-rapidapi-key': '73d575bf0cmshf6967d0d6b59b7ap1239cdjsna97c30493525',
+      'x-rapidapi-host': 'free-api-live-football-data.p.rapidapi.com'
+    }
+  };
+
+  let logoUrl = 'https://via.placeholder.com/100';
+
+  try {
+    const searchUrl = `https://free-api-live-football-data.p.rapidapi.com/football-teams-search?search=${timeName}`;
+    const searchResponse = await fetch(searchUrl, options);
+    const searchData = await searchResponse.json();
+
+    if (!searchData.response.suggestions || searchData.response.suggestions.length === 0) {
+      throw new Error(`Time "${timeName}" não encontrado na base de dados da API de logos.`);
+    }
+    const teamId = searchData.response.suggestions[0].id;
+
+    const logoUrlEndpoint = `https://free-api-live-football-data.p.rapidapi.com/football-team-logo?teamid=${teamId}`;
+    const logoResponse = await fetch(logoUrlEndpoint, options);
+    const logoData = await logoResponse.json();
+    
+    if (logoData.response.url) {
+      logoUrl = logoData.response.url;
+    }
+
+    // ========= Leitura dos dados do formulario =========
+    const victories = parseInt(document.getElementById("timeVictories").value, 10);
+    const defeats = parseInt(document.getElementById("timeDefeats").value, 10);
+    const draws = parseInt(document.getElementById("timeDraws").value, 10)
+    const goalsScored = parseInt(document.getElementById("timeGoalsScored").value, 10);
+    const goalsConceded = parseInt(document.getElementById("timeGoalsConceded").value, 10);
+    const games = victories + defeats + draws;
+
+    const times = loadData();
+    const newTime = {
+      name: document.getElementById("timeName").value,
+      foundation: parseInt(document.getElementById("timeFoundation").value, 10),
+      nickname: document.getElementById("timeNickname").value,
+      bestPlayer: document.getElementById("timeBestPlayer").value,
+      color: document.getElementById("timeColor").value,
+      badge: logoUrl,
+      dataTime: { 
+        games: games, 
+        victories: victories, 
+        draws: draws,
+        defeats: defeats, 
+        goalsScored: goalsScored, 
+        goalsConceded: goalsConceded
+      }
+    };
+
+    const updated = soccer.addTimes(times, newTime);
+    soccer.saveTimes(updated);
+
+    alert("✅ Time cadastrado com sucesso!");
+    formCadastrar.reset();
+    renderTeamCards();
+    updateHomeChart();
+
+  } catch (error) {
+    console.error("Erro no cadastro do time:", error);
+    alert(`❌ Falha ao cadastrar o time. Motivo: ${error.message}`);
+  } finally {
+    submitButton.value = "Cadastrar";
+    submitButton.disabled = false;
+  }
+});
+
+  // =============================== Conexão do menu à função que atualiza o gráfico ===============================
+  selectCriterio.addEventListener("change", updateHomeChart);
+  selectOrdem.addEventListener("change", updateHomeChart);
+
+
+  // ====================== Navegação do Menu ========================
   menuLinks.forEach(link => {
     link.addEventListener("click", () => {
-      const sectionId = link.getAttribute("data-section")
+      const sectionId = link.getAttribute("data-section");
 
-      menuLinks.forEach(l => l.classList.remove("active"))
-      link.classList.add("active")
+      menuLinks.forEach(l => l.classList.remove("active"));
+      link.classList.add("active");
 
-      sections.forEach(sec => sec.classList.remove("active"))
-      byId(sectionId).classList.add("active")
+      sections.forEach(sec => sec.classList.remove("active"));
+      document.getElementById(sectionId).classList.add("active");
 
-      if (sectionId === "home") updateHomeChart()
-      if (sectionId === "times") renderTimeCards()
-    })
-  })
+      if (sectionId === "home") updateHomeChart(); 
+      
+      if (sectionId === "times") {
+        renderTeamCards();
+        teamInfo.innerHTML = "<p>Selecione um time para ver estatísticas</p>";
+        if (chartTeamBalance) chartTeamBalance.destroy();
+      }
+    });
+  });
 
-  // ===============================
-  // Inicialização
-  // ===============================
+  // =============== Inicialização ====================
+  updateHomeChart(); 
+  renderTeamCards();
 
-  ensureOrderSelect()
-  updateHomeChart()
-  renderTimeCards()
-})
+});
