@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
+<head>              
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Times</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <title>CRUD esporte</title>
+   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
 
-  <style>
+  <style> 
     /* Reset básico */
     * {
       margin: 0;
@@ -15,13 +15,14 @@
       font-family: 'Roboto', sans-serif;
     }
     /* Fundo e cor do texto */
-    body {
+    body { 
       background: url(fundo.png) no-repeat center center fixed;
       background-size: cover;
       color: white;
     }
 
-    /* Menu */
+    /* ============= Inicio do menu ============*/
+    /*Menu*/
     ul.menu {
       border-radius: 0px;
       list-style-type: none;
@@ -34,9 +35,11 @@
       z-index: 1000;
       text-align: center;
     }
-
+    
     /* Itens do menu */
-    ul.menu li { float: left; }
+    ul.menu li { 
+      float: left; 
+    }
 
     /* Links do menu */
     ul.menu li a {
@@ -46,36 +49,49 @@
       padding: 14px 20px;
       text-decoration: none;
     }
+
     /* Efeito hover e ativo */
     ul.menu li a:hover { background-color: #111; }
     ul.menu li a.active { background-color:#04AA6D; }
+  
+    /* ============= Fim do menu ============*/
 
-    /* Container principal */
-    .container {
+ 
+    /* ============= Container principal ============*/
+   .container {
       max-width: 1200px;
       margin: 100px auto;
       padding: 20px 20px 20px 20px;
       background-color: rgba(0, 0, 0, 0.7);
       border-radius: 6px;
-      text-align: center;
+      text-align: center;      
+    } 
+    /* ============= Fim do container principal ============*/
+
+
+    /* ============= Inicio do formulario de cadastro ============*/
+
+    /* Espaço do form ao topo*/
+    form { 
+      margin-top: 10px; 
     }
 
-    /* Formulário */
-    form { margin-top: 10px; }
-
-    form label {
-      display: block;
-      text-align: left;
-      margin-top: 10px;
+    /*Campos*/
+    form label { 
+      display: block; 
+      text-align: left; 
+      margin-top: 10px; 
     }
 
-    input {
-      padding: 10px;
-      margin-top: 10px;
+    /*caixa de texto*/
+    input { 
+      padding: 10px; 
+      margin-top: 10px; 
       width: 100%;
-      border-radius: 6px;
+    border-radius: 6px; 
     }
 
+    /*Botão cadastrar*/ 
     input[type="submit"] {
       background-color: #04aa6d;
       color: white;
@@ -84,21 +100,32 @@
       border-radius: 6px;
       font-size: 15px;
     }
+    /* ============= Fim do formulario de cadastro ============*/
 
-    /* secoes */
-    section { display: none; }
-    section.active { display: block; }
+    
+    /* ============= Inicio da separação por serção ============*/
+    section { 
+      display: none; 
+    }
 
-    /* grid de times */
-    .time-grid {
+    section.active {
+       display: block;
+    }
+    /* ============= fim da separação por serção ============*/
+    
+
+    /* ============= Inicio dos cards dos times ============*/
+    
+    /* Organização dos cards */
+    .team-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
       gap: 20px;
       padding: 20px 0;
     }
 
-    /* Card do time */
-    .time-card {
+    /* Estilização dos cards */
+    .team-card {
       background: rgba(255,255,255,1);
       border-radius: 6px;
       text-align: center;
@@ -108,28 +135,28 @@
     }
 
     /* Efeito hover nos cards */
-    .time-card:hover {
+    .team-card:hover {
       transform: translateY(-5px);
       box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
     }
 
     /* Logo do time */
-    .time-logo {
+    .team-logo {
       width: 100px;
       height: 100px;
       object-fit: contain;
       margin-bottom: 10px;
     }
 
-    /* acoes do time */
-    .time-actions {
+    /* Ações dos times */
+    .team-actions {
       display: flex;
       justify-content: center;
       gap: 10px;
-      margin-top: 10px;
+      margin-top: 10px;   
     }
 
-    /* Estilização dos botoes */
+    /* Estilização dos botões */
     .btn {
       flex: 1;
       padding: 8px 12px;
@@ -140,114 +167,189 @@
       color: #fff;
     }
 
-    /* Botoes coloridos */
-    .btn.update { background: #3498db; }
-    .btn.update:hover { background: #2980b9; }
-    .btn.delete { background: #e74c3c; }
-    .btn.delete:hover { background: #c0392b; }
-
-    /* area dos gráficos */
-    .charts {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 20px;
-      margin-top: 20px;
+    /* Cor de atualizar*/
+    .btn.update { 
+      background: #3498db; 
+    }
+    
+    /*Hover de atualizar*/
+    .btn.update:hover { 
+      background: #2980b9; 
     }
 
-    /* Estilo dos gráficos */
-    .chart-container {
-      padding: 20px;
-      border-radius: 6px;
-      color: black;
+    /*Cor de delete*/
+    .btn.delete { 
+      background: #e74c3c; 
     }
-
-    canvas {
-      width: 100% !important;
-      height: auto !important;
+    /*Houve de delete*/
+    .btn.delete:hover { 
+      background: #c0392b; 
     }
+    /* ============= Fim dos cards dos times ============*/
 
-    @media (max-width: 768px) {
-      .container { margin: 20px; }
-      h1 { font-size: 1.8em; }
-      ul.menu li { float: none; display: block; text-align: center; }
-      ul.menu li[style*="float:right"] { float: none; }
-    }
 
-    /* ======================== */
-    /* ESTILOS DO MODAL         */
-    /* ======================== */
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 2000;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      overflow: auto;
-      background-color: rgba(0,0,0,0.6);
-    }
 
-    .modal-content {
-      background-color: #222;
-      margin: 10% auto;
-      padding: 20px;
-      border: 1px solid #888;
-      width: 80%;
-      max-width: 500px;
-      border-radius: 6px;
-      position: relative;
-    }
 
-    .close-button {
-      color: #aaa;
-      position: absolute;
-      top: 10px;
-      right: 20px;
-      font-size: 28px;
-      font-weight: bold;
-      cursor: pointer;
-    }
+/* ============= Inicio do formulario de atualização ============*/
 
-    .close-button:hover,
-    .close-button:focus {
-      color: white;
-    }
+/*Fundo*/
+.modal {
+  display: none; 
+  position: fixed;
+  z-index: 2000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.6);
+}
 
-    /* =================================== */
-    /* ESTILOS DOS DETALHES DO TIME        */
-    /* =================================== */
-    #time-details-container {
-      display: flex;
-      flex-wrap: wrap;
-      margin-top: 30px;
-      gap: 20px;
-      background: rgba(0,0,0,0.3);
-      padding: 20px;
-      border-radius: 6px;
-    }
+/* Conteine do formulario*/
+.modal-content {
+  background-color: #222;
+  margin: 10% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+  max-width: 500px;
+  border-radius: 6px;
+  position: relative;
+}
 
-    #time-details-text {
-      flex: 1;
-      min-width: 280px;
-      color: white;
-      text-align: left;
-    }
+/* Botão para fechar*/
+.close-button {
+  color: #aaa;
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+}
 
-    #time-details-text h2 { margin-bottom: 15px; }
+/*============= Fim do formulario de atualização ============*/
 
-    #time-charts-wrapper {
-      flex: 1;
-      display: flex;
-      min-width: 280px;
-      gap: 15px;
-    }
 
-    #time-charts-wrapper .chart-container { width: 50%; }
+/* ============= Inicio das estatiscas dos times ============*/ 
+
+/*Conteine principal*/   
+#team-details-container {
+  display: flex;
+  flex-wrap: wrap; 
+  margin-top: 30px;
+  gap: 20px;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 20px;
+  border-radius: 6px;
+}
+/* Texto da caixa*/
+#team-details-text {
+  flex: 1; 
+  min-width: 280px; 
+  color: rgb(255, 255, 255);
+  text-align: left;
+}
+
+/*Distãncia dos textos*/
+#team-details-text h2 {
+    margin-bottom: 10px;
+}
+
+/*Tamanhos dos gráficos*/
+#team-charts-wrapper {
+  flex: 1; 
+  display: flex;
+  min-width: 280px;
+  gap: 15px;
+}
+
+/*Para funcionar o chart-container */
+#team-charts-wrapper .chart-container {
+    width: 50%;
+}
+/* ============= Fim das estatiscas dos times ============*/
+
+/* ============= Inicio caixa de seleção de dados ============*/
+
+/*Caixa*/
+#select-criterio{
+  background-color: rgba(255,255,255,0.1);
+  color: white;
+  padding: 10px 15px;
+  border-radius: 6px;
+  appearance: none;
+  cursor: pointer;
+  font-size: 1em;
+}
+/*Cor de fundo e fonte*/
+#select-criterio option{
+  background-color: #333;
+  color:white;
+}
+
+/*Hover da caixa*/
+#select-criterio:hover{
+  border-color: #04AA6D;
+}
+/* ============= Fim da caixa de seleção de dados ============*/
+
+/* ============= Inicio da página sobre nós ============*/
+
+/*Conteiner principal*/
+#sobre{
+  color:white;
+  text-align: center;
+  padding: 20px;
+}
+
+/* Aliamento dos intergrantes */
+.equipe-container {
+ display: flex;
+  flex-wrap: wrap; 
+  justify-content: center;
+  gap: 20px; 
+  margin-top: 40px;
+}
+
+/* Estilo para cada intergrante*/
+.intergrante {
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 20px;
+  width: 250px; 
+ 
+}
+
+/* Estilos para a foto */
+.intergrante img {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;  
+  object-fit: cover; 
+  border: 3px solid #04AA6D; 
+  margin-bottom: 15px;
+}
+
+/* Estilo para o texto de cada intergrante */
+.intergrante h3 {
+  color: white;
+  margin: 0;
+  font-size: 1.2em;
+}
+/*Descrição*/
+.intergrante p {
+  color: white;
+  font-size: 0.9em;
+  margin-top: 5px;
+}
+/* ============= Inicio da página sobre nós ============*/
+
   </style>
 </head>
 
-<body>
+<body> 
   <!--Menu-->
   <ul class="menu">
     <li><a href="#" data-section="home" class="active">Home</a></li>
@@ -258,72 +360,74 @@
 
   <div class="container">
 
-    <!-- Home -->
+    <!-------- Inicio home ---------->
     <section id="home" class="active">
-      <h1>🏆 CRUDSCORE </h1>
+
+      <h1>🏆 CRUD esporte</h1>
 
       <div class="filtros-container" style="display: flex; justify-content: center; gap: 20px; margin-top: 20px; flex-wrap: wrap;">
-        <div>
-          <label for="select-criterio">DADOS HISTÓRICOS:</label>
-          <select id="select-criterio" style="padding: 8px; border-radius: 6px;">
+    <div>
+        <label for="select-criterio">DADOS:</label>
+        <select id="select-criterio" style="padding: 8px; border-radius: 6px;">
             <option value="victories">Vitórias</option>
             <option value="defeats">Derrotas</option>
             <option value="goalsScored">Gols Marcados</option>
             <option value="goalsConceded">Gols Sofridos</option>
             <option value="goalDifference">Saldo de Gols</option>
-          </select>
-        </div>
-        <div>
-          <select id="select-ordem" style="display: none;">
-          </select>
-        </div>
-      </div>
-
-      <div class="charts">
-        <div class="chart-container">
-          <canvas id="homeChart"></canvas>
-        </div>
-      </div>
+        </select>
+    </div>
+    <div>
+        <select id="select-ordem" style="display: none;">
+        </select>
+    </div>
+</div>
+<div class="charts">
+    <div class="chart-container">
+        <canvas id="homeChart"></canvas>
+    </div>
+</div>
     </section>
+    <!-------- Fim home ---------->
 
-    <!-- Times -->
+    <!-- Inicio Times -->
     <section id="times">
-      <h1>📋 Times</h1>
-      <div id="time-cards" class="time-grid"></div>
-      <div id="time-details-container">
-        <div id="time-details-text">
-          <p>Selecione um time para ver as estatísticas.</p>
-        </div>
-        <div id="time-charts-wrapper">
-          <div class="chart-container">
-            <canvas id="chartTimeResults"></canvas>
+      <h1>⚽ Times</h1>
+      <div id="team-cards" class="team-grid"></div>
+     <div id="team-details-container">
+          <div id="team-details-text">
+              <p>Selecione um time para ver as estatísticas.</p>
           </div>
-          <div class="chart-container">
-            <canvas id="chartTimeGoals"></canvas>
+          <div id="team-charts-wrapper">
+              <div class="chart-container">
+                  <canvas id="chartTeamResults"></canvas>
+              </div>
+              <div class="chart-container">
+                  <canvas id="chartTeamGoals"></canvas>
+              </div>
           </div>
-        </div>
       </div>
     </section>
+    <!-- Fim Times -->
 
-    <!-- Cadastro -->
+    <!----------- Inicio cadastro ------------->
     <section id="cadastrar">
       <h1> 📝 Cadastrar time</h1>
-      <form id="form-cadastrar">
+     <form id="form-cadastrar">
         <label>Nome do time:</label>
         <input type="text" id="timeName" placeholder="Ex: Flamengo" required>
-
+        
         <label>Ano de fundação:</label>
         <input type="number" id="timeFoundation" placeholder="Ex: 1895" required>
-
+        
         <label>Apelido:</label>
         <input type="text" id="timeNickname" placeholder="Ex: Mengão" required>
-
+        
         <label>Maior ídolo:</label>
         <input type="text" id="timeBestPlayer" placeholder="Ex: Zico" required>
-
+        
         <label>Cor:</label>
         <input type="text" id="timeColor" placeholder="Ex: Vermelho e preto" required>
-
+        
         <label>Vitórias:</label>
         <input type="number" id="timeVictories" placeholder="Ex: 3100" required>
 
@@ -332,79 +436,107 @@
 
         <label>Derrotas:</label>
         <input type="number" id="timeDefeats" placeholder="Ex: 1600" required>
-
+        
         <label>Gols Pró:</label>
         <input type="number" id="timeGoalsScored" placeholder="Ex: 10500" required>
-
+        
         <label>Gols Contra:</label>
         <input type="number" id="timeGoalsConceded" placeholder="Ex: 7600" required>
 
-        <label>URL do escudo:</label>
-        <input type="text" id="timeBadge" placeholder="https://..." required><br><br>
-
+      
         <br><br>
         <input type="submit" value="Cadastrar">
       </form>
     </section>
+    <!----------- Fim cadastro ------------->
 
-    <!-- Sobre -->
+    <!----------- Inicio sobre nós ------------->
     <section id="sobre">
+
       <h1>PROJETO AVALIATIVO DA DISCIPLINA DE PROGRAMAÇÃO FUNCIONAL</h1>
-      <p><br><br>DOCENTE: HENDRICK</p>
-      <p><br>EQUIPE DE DISCENTES: <br><br> BRUNO <br> JOÃO GUSTAVO BITTENCOURT <br> NATHAN <br> LUCAS</p>
+            <p><br><br>DOCENTE: HENDRIK TEIXEIRA MACEDO</p>
+
+      <div class=" equipe-container">
+
+        <div class="intergrante">
+          <img src="Bruno.jpg" alt="foto de Bruno" >
+          <h3> Bruno Almeida</h3>
+          <P>Desenvolvedor</P>
+        </div>
+
+        <div class="intergrante">
+          <img src="João.jpg" alt="foto de João" >
+          <h3> João Bittencourt</h3>
+          <P>Desenvolvedor</P>
+        </div>
+
+        <div class="intergrante">
+          <img src="Nathan.jpg" alt="foto de NATHAN" >
+          <h3> Nathan Ramirez</h3>
+          <P>Desenvolvedor</P>
+          </div>
+
+        <div class="intergrante">
+          <img src="Lucas Thiery.jpg" alt="foto de Lucas" >
+          <h3> Lucas Thiery santos</h3>
+          <P>Desenvolvedor</P>
+        </div>
+
+      </div>
     </section>
+    <!----------- Fim sobre nós ------------->
 
+<!----------- Inicio formulario de cadastro ------------->
+<div id="edit-modal" class="modal">
+  <div class="modal-content">
+    <span class="close-button">&times;</span>
+    <h2>Editar Time</h2>
+    <form id="form-update">
+      <input type="hidden" id="update-team-id">
+      
+      <label>Nome do time:</label>
+      <input type="text" id="update-timeName" required>
+      
+      <label>Ano de fundação:</label>
+      <input type="number" id="update-timeFoundation" required>
+      
+      <label>Apelido:</label>
+      <input type="text" id="update-timeNickname" required>
+      
+      <label>Maior ídolo:</label>
+      <input type="text" id="update-timeBestPlayer" required>
+      
+      <label>Cor:</label>
+      <input type="text" id="update-timeColor" required>
+      
+      <label>Vitórias:</label>
+      <input type="number" id="update-timeVictories" required>
+
+      <label>Empates:</label>
+      <input type="number" id="update-timeDraws" required>
+
+      <label>Derrotas:</label>
+      <input type="number" id="update-timeDefeats" required>
+      
+      <label>Gols Pró:</label>
+      <input type="number" id="update-timeGoalsScored" required>
+      
+      <label>Gols Contra:</label>
+      <input type="number" id="update-timeGoalsConceded" required>
+
+      
+      <br><br>
+      <input type="submit" value="Salvar Alterações">
+    </form>
   </div>
+</div>
+<!----------- Final formulario de cadastro ------------->
 
-  <script src="libTeams.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="uiTeams.js"></script>
 
-  <div id="edit-modal" class="modal">
-    <div class="modal-content">
-      <span class="close-button">&times;</span>
-      <h2>Editar Time</h2>
-      <form id="form-update">
-        <input type="hidden" id="update-time-id">
 
-        <label>Nome do time:</label>
-        <input type="text" id="update-timeName" required>
-
-        <label>Ano de fundação:</label>
-        <input type="number" id="update-timeFoundation" required>
-
-        <label>Apelido:</label>
-        <input type="text" id="update-timeNickname" required>
-
-        <label>Maior ídolo:</label>
-        <input type="text" id="update-timeBestPlayer" required>
-
-        <label>Cor:</label>
-        <input type="text" id="update-timeColor" required>
-
-        <label>Vitórias:</label>
-        <input type="number" id="update-timeVictories" required>
-
-        <label>Empates:</label>
-        <input type="number" id="update-timeDraws" required>
-
-        <label>Derrotas:</label>
-        <input type="number" id="update-timeDefeats" required>
-
-        <label>Gols Pró:</label>
-        <input type="number" id="update-timeGoalsScored" required>
-
-        <label>Gols Contra:</label>
-        <input type="number" id="update-timeGoalsConceded" required>
-
-        <label>URL do escudo:</label>
-        <input type="text" id="update-timeBadge" required>
-
-        <br><br>
-        <input type="submit" value="Salvar Alterações">
-      </form>
-    </div>
-  </div>
+<script src="libTeams.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="uiTeams.js"></script>
 
 </body>
 </html>
