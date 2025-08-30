@@ -1,118 +1,187 @@
+
 const soccer = (() => {
 
-  const STORAGE_KEY = "liga::times"
+const STORAGE_KEY = "liga::times"
 
-  // =============================
-  // Persistência
-  // =============================
+// =============================
+// Persistência
+//==============================
 
-  // carrega a lista de time do localStorage ou [] se não tiver nada
-  const loadTimes = () => {
+// vai no local storage, verifica se data existe, existe? pega os dados que estão em string e converte em objeto. não? devolve []
+const loadTimes = () => {
     const data = localStorage.getItem(STORAGE_KEY)
     return data ? JSON.parse(data) : []
   }
 
-  // salva a lista de times no localstorage como string
-  const saveTimes = times =>
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(times))
+// recebe times, vai no local storage e coloca a informação em formato de string
+const saveTimes = times =>
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(times)) 
 
-  // apaga tudo relacionado aos times do localtorage
-  const clearTimes = () => {
+// vai no local storage e apaga a storage key
+const clearTimes = () => {
     localStorage.removeItem(STORAGE_KEY)
     console.log("Limpeza concluída.")
   }
 
-  // coloca time inicial no localStorage
-  const resetTimes = () => {
-    const times = [
-      {
-        id: 1,
-        name: "Corinthians",
-        foundation: 1910,
-        color: "preto e branco",
-        nickname: "Timão",
-        bestPlayer: "Sócrates",
-        badge: "https://tse1.mm.bing.net/th/id/OIP.LMOAYurYCi2q9nmSLQqVIAHaHa?pid=Api&P=0&h=180",
-        dataTime: {
-          games: 5850,
-          victories: 3105,
-          draws: 1576,
-          defeats: 1567,
-          goalsScored: 9700,
-          goalsConceded: 7800
-        }
-      },
-      {
-        id: 2,
-        name: "Flamengo",
-        foundation: 1895,
-        color: "vermelho e preto",
-        nickname: "Mengão",
-        bestPlayer: "Zico",
-        badge: "https://tse4.mm.bing.net/th/id/OIP.o8sjkU0ruMxq6E326AJzsQHaJB?pid=Api&P=0&h=180",
-        dataTime: {
-          games: 6000,
-          victories: 3570,
-          draws: 1568,
-          defeats: 1567,
-          goalsScored: 10500,
-          goalsConceded: 7600
-        }
-      },
-    ]
-
-    saveTimes(times)
-    console.log("Times iniciais salvos.")
+// salva times iniciais no localStorage
+const resetTimes = () => {
+  const times = [
+    {
+      id: 1,
+      name: "Corinthians",
+      foundation: 1910,
+      color: "preto e branco",
+      nickname: "Timão",
+      bestPlayer: "Sócrates",
+      badge: "https://tse1.mm.bing.net/th/id/OIP.LMOAYurYCi2q9nmSLQqVIAHaHa?pid=Api&P=0&h=180",
+      dataTime: {
+        games: 5850,
+        victories: 3105,
+        draws: 1576,
+        defeats: 1567,
+        goalsScored: 9700,
+        goalsConceded: 7800
+      }
+    },
+    {
+      id: 2,
+      name: "Flamengo",
+      foundation: 1895,
+      color: "vermelho e preto",
+      nickname: "Mengão",
+      bestPlayer: "Zico",
+      badge: "https://tse4.mm.bing.net/th/id/OIP.o8sjkU0ruMxq6E326AJzsQHaJB?pid=Api&P=0&h=180",
+      dataTime: {
+        games: 6000,
+        victories: 3570,
+        draws: 1568,
+        defeats: 1567,
+        goalsScored: 10500,
+        goalsConceded: 7600
+      }
+    },
+    {
+      id: 3,
+      name: "Santos",
+      foundation: 1912,
+      color: "branco e preto",
+      nickname: "Peixe",
+      bestPlayer: "Pelé",
+      badge: "https://tse3.mm.bing.net/th/id/OIP.UpSijRN-ylVVdEXX4ODzUwHaHx?pid=Api&P=0&h=180",
+      dataTime: {
+        games: 5900,
+        victories: 3105,
+         draws: 1395,
+        defeats: 1550,
+        goalsScored: 12300,
+        goalsConceded: 7900
+      }
+    },{
+    id: 4,
+    name: "São Paulo",
+    foundation: 1930,
+    color: "vermelho, preto e branco",
+    nickname: "Tricolor Paulista",
+    bestPlayer: "Rogério Ceni",
+    badge: "https://tse1.mm.bing.net/th/id/OIP.p5invQH0X7YNhae0dyHReQHaHk?pid=Api&P=0&h=180",
+    dataTime: {
+      games: 6020,
+      victories: 3050,
+      draws: 1610,
+      defeats: 1360,
+      goalsScored: 9500,
+      goalsConceded: 6900
+    }
+  },
+  {
+    id: 5,
+    name: "Palmeiras",
+    foundation: 1914,
+    color: "verde e branco",
+    nickname: "Verdão",
+    bestPlayer: "Ademir da Guia",
+    badge: "https://tse3.mm.bing.net/th/id/OIP.YhpBd8JpLrx2zV4Gg1zmJgHaHa?pid=Api&P=0&h=180",
+    dataTime: {
+      games: 6200,
+      victories: 3300,
+      draws: 1650,
+      defeats: 1250,
+      goalsScored: 10100,
+      goalsConceded: 7200
+    }
+  },
+  {
+    id: 6,
+  name: "Vasco da Gama",
+  foundation: 1898,
+  color: "preto, branco e vermelho",
+  nickname: "Gigante da Colina",
+  bestPlayer: "Roberto Dinamite",
+  badge: "https://tse3.mm.bing.net/th/id/OIP.cd6z-TYZJh-kC5xfaDIh_wHaJX?pid=Api&P=0&h=180",
+  dataTime: {
+    games: 5500,
+    victories: 2800,
+    draws: 1450,
+    defeats: 1250,
+    goalsScored: 9000,
+    goalsConceded: 7000
+    }
   }
+  ];
 
-  // ===================================
-  // CRUD funcional
-  // ===================================
+  saveTimes(times);
+  console.log("Times iniciais salvos.");
+};
 
-  // adiciona um time novo e gera um id novo
-  const addTimes = (times, newTime) => {
+// ===================================
+// Crud funcional
+// ===================================
+
+const addTimes = (times, newTime) => {
+    // Calcula o novo ID
     const newId = times.length > 0
-      ? times.reduce((max, time) => (time.id > max ? time.id : max), 0) + 1
-      : 1
+        ? times.reduce((max, time) => (time.id > max ? time.id : max), 0) + 1
+        : 1;
 
-    const timeWithId = { ...newTime, id: newId }
-    return [...times, timeWithId]
-  }
+    // Cria um novo objeto `newTime` com o ID
+    const timeWithId = { ...newTime, id: newId };
+    
+    // Retorna um novo array com o novo time adicionado
+    return [...times, timeWithId];
+};
 
-  // atualiza um time pelo id retorna novo array
-  const updateTimes = (times, id, updates) =>
+ // recebe times, id, e a atualização, e altera a informação.
+ const updateTimes = (times, id, updates) =>
     times.map(time => (time.id === id ? { ...time, ...updates } : time))
 
-  // remove um time pelo id 
-  const deleteTime = (times, id) =>
+ // verifica o id do time, se ele existir pega a lista times e filtra sem o id passado
+ const deleteTime = (times, id) =>
     times.filter(time => time.id !== id)
 
-  // ========================
-  // Listagem e busca
-  // ========================
+// ========================
+// Listagem e formatação
+// ========================
 
-  // monta uma listinha simples de times 
-  const listTimes = times =>
+// lista os times
+ const listTimes = times =>
     times.map(time =>
       `${time.id} - "${time.name}" (${time.foundation})`
     ).join('\n')
 
-  // filtra times por um campo aletarorio
-  const listTimesByField = (times, field, value) =>
+  const listTimesByField = (times, field, value) => 
     times.filter(time => String(time[field]) === String(value))
 
-  // ========================
-  // Estatísticas
-  // ========================
+// ========================
+// Estatísticas Gerais
+// ========================
 
-  // pega o time que mais tem no campo passado  vitorias derrotas etc etc
-  const getMostByField = (times, field) =>
-    times.reduce(
-      (acc, time) => time.dataTime[field] > (acc?.dataTime[field] || 0) ? time : acc,
-      null
-    )
+//recebe a lista de times e um campo (vitória,derrota,etc) e verifica se o número do campo é maior que o acumulador ou zero, se for retorna o time se não retorna o acumulador
+const getMostByField = (times, field) => {
+  return times.reduce((acc, team) => team.dataTime[field] > (acc?.dataTime[field] || 0) ? team : acc,null)} 
 
-  return {
+
+  
+     return {
     // Persistência
     loadTimes,
     saveTimes,
@@ -122,14 +191,15 @@ const soccer = (() => {
     // CRUD
     addTimes,
     updateTimes,
-    deleteTime,
+    deleteTime, 
 
     // Exibição
     listTimes,
     listTimesByField,
 
-    // Estatísticas
+    //Estatísticas
     getMostByField
-  }
+     }
 
-})()
+
+}) ()
